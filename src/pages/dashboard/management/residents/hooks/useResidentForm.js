@@ -3,11 +3,11 @@ import { useState, useCallback } from "react";
 const initialFormData = {
   name: "",
   surname: "",
-  father_name: "",
   type: "owner",
   email: "",
   phone: "",
   meta: {
+    father_name: "",
     gender: "",
     personal_code: "",
     birth_date: "",
@@ -73,11 +73,11 @@ export function useResidentForm() {
     setFormData({
       name: resident.name || "",
       surname: resident.surname || "",
-      father_name: resident.father_name || resident.meta?.father_name || "",
       type: resident.type || "owner",
       email: resident.email || "",
       phone: resident.phone || "",
       meta: {
+        father_name: resident.meta?.father_name || resident.father_name || "",
         gender: resident.meta?.gender || resident.gender || "",
         personal_code: resident.meta?.personal_code || resident.personal_code || "",
         birth_date: resident.meta?.birth_date || resident.birth_date || "",

@@ -349,9 +349,9 @@ export function ResidentFormModal({
                   />
                   <CustomInput
                     label="Ata Adı"
-                    value={form.formData.father_name || ""}
-                    onChange={(e) => form.updateField("father_name", e.target.value)}
-                    error={form.errors?.father_name}
+                    value={form.formData.meta?.father_name || ""}
+                    onChange={(e) => form.updateField("meta.father_name", e.target.value)}
+                    error={form.errors?.["meta.father_name"]}
                   />
                 </div>
               </div>
