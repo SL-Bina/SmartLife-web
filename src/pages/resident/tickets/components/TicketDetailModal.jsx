@@ -1,264 +1,113 @@
-import React, { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Button,
-  Typography,
-  Spinner,
-  Chip,
-} from "@material-tailwind/react";
+import React from "react";
+import { Dialog, DialogBody } from "@material-tailwind/react";
 import {
   XMarkIcon,
   QuestionMarkCircleIcon,
   ClockIcon,
-  UserIcon,
+  CalendarIcon,
+  TagIcon,
+  XCircleIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
-import { useTranslation } from "react-i18next";
-import residentTicketsAPI from "../api";
+import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
 import { useComplexColor } from "@/hooks/useComplexColor";
 
-export function TicketDetailModal({ open, onClose, ticketId }) {
-  const { t } = useTranslation();
+const STATUS_CFG = {
+  pending:     { label: "Gözləyir",    cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400", Icon: ClockIcon },
+  in_progress: { label: "İcrada",      cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",         Icon: ArrowPathIcon },
+  resolved:    { label: "Həll olunub", cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",     Icon: CheckCircleSolid },
+  completed:   { label: "Tamamlanıb",  cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",     Icon: CheckCircleSolid },
+  cancelled:   { label: "Ləğv edilib", cls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",            Icon: XCircleIcon },
+  closed:      { label: "Bağlanıb",    cls: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300",           Icon: XCircleIcon },
+};
+
+function Row({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-start justify-between py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
+      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm shrink-0">
+        {Icon && <Icon className="h-4 w-4 shrink-0" />}{label}
+      </div>
+      <span className="text-sm font-medium text-gray-800 dark:text-gray-200 text-right max-w-[60%]">{value || "-"}</span>
+    </div>
+  );
+}
+
+const fmtDate = (d) => {
+  if (!d) return "-";
+  try { return new Date(d).toLocaleDateString("az-AZ", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" }); }
+  catch { return d; }
+};
+
+export function TicketDetailModal({ open, onClose, ticket }) {
   const { color, getRgba } = useComplexColor();
-  const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  if (!ticket) return null;
 
-  useEffect(() => {
-    if (open && ticketId) {
-      fetchTicketDetails();
-    } else {
-      setTicket(null);
-      setError(null);
-    }
-  }, [open, ticketId]);
-
-  const fetchTicketDetails = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await residentTicketsAPI.getById(ticketId);
-      if (response?.success && response?.data) {
-        setTicket(response.data);
-      } else {
-        setError(response?.message || "Məlumat tapılmadı");
-      }
-    } catch (err) {
-      // Mock data on error
-      setTicket({
-        id: ticketId,
-        title: "Lift Problemi",
-        description: "Liftdə səs-küy var və düzgün işləmir. Zəhmət olmasa baxın.",
-        status: "pending",
-        created_at: "2026-02-20T10:00:00Z",
-        ticket_number: "TKT-001",
-        category: "Texniki",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Set z-index for portal container when modal is open
-  useEffect(() => {
-    if (open) {
-      const setDialogZIndex = () => {
-        const dialogs = document.querySelectorAll('div[role="dialog"]');
-        dialogs.forEach((dialog) => {
-          if (dialog instanceof HTMLElement) {
-            dialog.style.zIndex = '999999';
-          }
-          let parent = dialog.parentElement;
-          while (parent && parent !== document.body) {
-            if (parent instanceof HTMLElement) {
-              const computedStyle = window.getComputedStyle(parent);
-              if (computedStyle.position === 'fixed' || computedStyle.position === 'absolute') {
-                parent.style.zIndex = '999999';
-              }
-            }
-            parent = parent.parentElement;
-          }
-        });
-        const backdrops = document.querySelectorAll('[class*="backdrop"]');
-        backdrops.forEach((backdrop) => {
-          if (backdrop instanceof HTMLElement) {
-            backdrop.style.zIndex = '999998';
-          }
-        });
-      };
-      setDialogZIndex();
-      const timeout = setTimeout(setDialogZIndex, 10);
-      return () => clearTimeout(timeout);
-    }
-  }, [open]);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("az-AZ", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "yellow";
-      case "in_progress":
-        return "blue";
-      case "resolved":
-      case "completed":
-        return "green";
-      case "cancelled":
-      case "closed":
-        return "red";
-      default:
-        return "gray";
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    const statusMap = {
-      pending: t("resident.tickets.status.pending") || "Gözləyir",
-      in_progress: t("resident.tickets.status.inProgress") || "İcrada",
-      resolved: t("resident.tickets.status.resolved") || "Həll olunub",
-      completed: t("resident.tickets.status.completed") || "Tamamlanıb",
-      cancelled: t("resident.tickets.status.cancelled") || "Ləğv edilib",
-      closed: t("resident.tickets.status.closed") || "Bağlanıb",
-    };
-    return statusMap[status] || status;
-  };
+  const st = STATUS_CFG[ticket.status] || { label: ticket.status || "-", cls: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300", Icon: null };
+  const StIcon = st.Icon;
 
   return (
-    <Dialog
-      open={open}
-      handler={onClose}
-      size="lg"
-      className="dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-      dismiss={{ enabled: false }}
-    >
-      <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center justify-between"
-        style={{ background: `linear-gradient(135deg, ${getRgba(0.12)}, ${getRgba(0.06)})` }}
+    <Dialog open={open} handler={onClose} size="md" className="dark:bg-gray-800 !max-w-lg">
+      {/* ── Compact gradient header ── */}
+      <div
+        className="flex items-center justify-between px-5 py-4 rounded-t-xl"
+        style={{ background: `linear-gradient(135deg, ${color}, ${getRgba(0.75)})` }}
       >
-        <div className="flex items-center gap-2">
-          <QuestionMarkCircleIcon className="h-5 w-5" style={{ color }} />
-          <Typography variant="h5" className="font-bold">
-            {t("resident.tickets.pageTitle") || "Bilet Detalları"}
-          </Typography>
+        <div className="flex items-center gap-3">
+          <div className="p-1.5 bg-white/20 rounded-lg">
+            <QuestionMarkCircleIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-semibold text-sm leading-tight">Müraciət Detalları</p>
+            <p className="text-white/70 text-xs">#{ticket.id || ticket.ticket_number}</p>
+          </div>
         </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+        >
+          <XMarkIcon className="h-4 w-4" />
+        </button>
+      </div>
+
+      <DialogBody className="p-5 space-y-4">
+        {/* Title + status banner */}
         <div
-          className="cursor-pointer p-2 rounded-md transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
-          onClick={onClose}
+          className="rounded-xl p-4 flex items-start justify-between gap-3"
+          style={{ background: getRgba(0.06), border: `1px solid ${getRgba(0.15)}` }}
         >
-          <XMarkIcon className="dark:text-white h-5 w-5 cursor-pointer" />
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-gray-900 dark:text-white text-base leading-tight">{ticket.title || "Müraciət"}</p>
+            {ticket.category && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{ticket.category}</p>}
+          </div>
+          <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap ${st.cls}`}>
+            {StIcon && <StIcon className="h-3.5 w-3.5" />}{st.label}
+          </span>
         </div>
-      </DialogHeader>
 
-      <DialogBody divider className="dark:bg-gray-800 py-6 max-h-[70vh] overflow-y-auto">
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Spinner className="h-8 w-8" />
+        {/* Description */}
+        {(ticket.description || ticket.message) && (
+          <div className="rounded-xl p-4 bg-gray-50 dark:bg-gray-700/30">
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Təsvir</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{ticket.description || ticket.message}</p>
           </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <Typography className="text-red-500 dark:text-red-400">
-              {error}
-            </Typography>
-          </div>
-        ) : ticket ? (
-          <div className="space-y-6">
-            {/* Ticket Header */}
-            <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-xl">
-              <div className="flex items-center justify-between mb-2">
-                <Typography variant="h5" className="font-bold text-gray-800 dark:text-white">
-                  {ticket.title || t("resident.tickets.ticket") || "Bilet"}
-                </Typography>
-                <Chip
-                  value={getStatusLabel(ticket.status)}
-                  color={getStatusColor(ticket.status)}
-                  size="sm"
-                />
-              </div>
-              <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                {t("resident.tickets.ticket") || "Bilet"} #{ticket.id || ticket.ticket_number}
-              </Typography>
-            </div>
+        )}
 
-            {/* Description */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <Typography variant="h6" className="font-bold mb-3 text-gray-800 dark:text-white">
-                {t("tickets.description") || "Təsvir"}
-              </Typography>
-              <Typography variant="small" className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                {ticket.description || ticket.message || ""}
-              </Typography>
-            </div>
+        {/* Detail rows */}
+        <div className="bg-gray-50 dark:bg-gray-700/30 rounded-xl px-4 py-1">
+          <Row icon={CalendarIcon} label="Tarix"      value={fmtDate(ticket.created_at || ticket.date)} />
+          <Row icon={TagIcon}      label="Kateqoriya" value={ticket.category} />
+        </div>
 
-            {/* Category */}
-            {ticket.category && (
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <Typography variant="h6" className="font-bold mb-2 text-gray-800 dark:text-white flex items-center gap-2">
-                  <UserIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  {t("tickets.category") || "Kateqoriya"}
-                </Typography>
-                <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                  {ticket.category}
-                </Typography>
-              </div>
-            )}
-
-            {/* Dates */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <Typography variant="h6" className="font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2">
-                <ClockIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                {t("properties.dates") || "Tarixlər"}
-              </Typography>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                    {t("properties.createdAt") || "Yaradılma tarixi"}
-                  </Typography>
-                  <Typography variant="small" className="font-semibold text-gray-800 dark:text-white">
-                    {formatDate(ticket.created_at || ticket.date)}
-                  </Typography>
-                </div>
-                {ticket.updated_at && (
-                  <div>
-                    <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                      {t("properties.updatedAt") || "Yenilənmə tarixi"}
-                    </Typography>
-                    <Typography variant="small" className="font-semibold text-gray-800 dark:text-white">
-                      {formatDate(ticket.updated_at)}
-                    </Typography>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </DialogBody>
-
-      <DialogFooter className="border-t border-gray-200 dark:border-gray-700 dark:bg-gray-800">
-        <Button
-          variant="text"
-          color="gray"
+        {/* Footer */}
+        <button
           onClick={onClose}
-          className="mr-2"
+          className="w-full py-2.5 rounded-xl text-sm font-semibold border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
-          {t("buttons.close") || "Bağla"}
-        </Button>
-      </DialogFooter>
+          Bağla
+        </button>
+      </DialogBody>
     </Dialog>
   );
 }
 
+export default TicketDetailModal;

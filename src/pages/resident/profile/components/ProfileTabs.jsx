@@ -2,23 +2,20 @@ import React, { useState } from "react";
 import {
   Card,
   CardBody,
-  Tabs,
-  TabsHeader,
-  Tab,
-  TabsBody,
-  TabPanel,
   Typography,
   Input,
-  Button,
   Select,
   Option,
 } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
 import { residentProfileAPI } from "../api";
 import { useResidentProfileForm, usePasswordForm } from "../hooks";
+import { useComplexColor } from "@/hooks/useComplexColor";
+import { UserIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 
 export function ProfileTabs({ user, refreshUser, messages }) {
   const { t } = useTranslation();
+  const { color, getRgba } = useComplexColor();
   const [activeTab, setActiveTab] = useState("personal");
   const [loading, setLoading] = useState(false);
 
@@ -110,37 +107,34 @@ export function ProfileTabs({ user, refreshUser, messages }) {
   };
 
   return (
-    <Card className="border border-blue-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 flex flex-col min-h-0">
-      <CardBody className="p-3 dark:bg-gray-800 flex-1 flex flex-col min-h-0">
-        <Tabs value={activeTab} className="flex-1 flex flex-col min-h-0">
-          <TabsHeader className="rounded-none border-b border-blue-600 dark:border-gray-700 bg-transparent p-0 flex-shrink-0">
-            <Tab
-              value="personal"
-              onClick={() => handleTabChange("personal")}
-              className={
-                activeTab === "personal"
-                  ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400"
-                  : "dark:text-gray-400"
-              }
+    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 flex flex-col min-h-0">
+      <CardBody className="p-0 dark:bg-gray-800 flex-1 flex flex-col min-h-0">
+        {/* ── Custom tab header ── */}
+        <div className="flex border-b border-gray-200 dark:border-gray-700 px-4 pt-3 gap-1">
+          {[
+            { key: "personal", label: t("profile.personalInfo") || "Şəxsi məlumatlar", Icon: UserIcon },
+            { key: "password", label: t("profile.password") || "Şifrəm",            Icon: LockClosedIcon },
+          ].map(({ key, label, Icon }) => (
+            <button
+              key={key}
+              onClick={() => handleTabChange(key)}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-t-lg transition-colors ${
+                activeTab === key
+                  ? "text-white rounded-lg mb-[-1px]"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              }`}
+              style={activeTab === key ? { background: color } : {}}
             >
-              {t("profile.personalInfo") || "Şəxsi məlumatlar"}
-            </Tab>
-            <Tab
-              value="password"
-              onClick={() => handleTabChange("password")}
-              className={
-                activeTab === "password"
-                  ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400"
-                  : "dark:text-gray-400"
-              }
-            >
-              {t("profile.password") || "Şifrəm"}
-            </Tab>
-          </TabsHeader>
+              <Icon className="h-4 w-4" />{label}
+            </button>
+          ))}
+        </div>
 
-          <TabsBody className="mt-2 flex-1 min-h-0" style={{ minHeight: "450px" }}>
+        {/* ── Tab body ── */}
+        <div className="p-4 flex-1 min-h-0 overflow-y-auto" style={{ minHeight: "450px" }}>
             {/* PERSONAL */}
-            <TabPanel value="personal" className="p-0 h-full flex flex-col">
+            {activeTab === "personal" && (
+            <div className="h-full flex flex-col">
               <Typography variant="h6" color="blue-gray" className="mb-2 font-bold dark:text-white text-sm flex-shrink-0">
                 {t("profile.personalInfo") || "Şəxsi məlumatlar"}
               </Typography>
@@ -264,21 +258,22 @@ export function ProfileTabs({ user, refreshUser, messages }) {
                 </div>
 
                 <div className="flex justify-end mt-2">
-                  <Button
-                    color="blue"
+                  <button
                     onClick={handleSavePersonalInfo}
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-xs py-1.5 px-4 disabled:opacity-50"
-                    size="sm"
+                    className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ background: color }}
                   >
                     {loading ? (t("profile.saving") || "Yadda saxlanır...") : (t("profile.save") || "Yadda saxla")}
-                  </Button>
+                  </button>
                 </div>
               </div>
-            </TabPanel>
+            </div>
+            )}
 
             {/* PASSWORD */}
-            <TabPanel value="password" className="p-0 h-full flex flex-col">
+            {activeTab === "password" && (
+            <div className="h-full flex flex-col">
               <Typography variant="h6" color="blue-gray" className="mb-2 font-bold dark:text-white text-sm flex-shrink-0">
                 {t("profile.password") || "Şifrəm"}
               </Typography>
@@ -343,20 +338,19 @@ export function ProfileTabs({ user, refreshUser, messages }) {
                 </div>
 
                 <div className="flex justify-end mt-2">
-                  <Button
-                    color="blue"
+                  <button
                     onClick={handleSavePassword}
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-xs py-1.5 px-4 disabled:opacity-50"
-                    size="sm"
+                    className="px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ background: color }}
                   >
                     {loading ? (t("profile.saving") || "Yadda saxlanır...") : (t("profile.save") || "Yadda saxla")}
-                  </Button>
+                  </button>
                 </div>
               </div>
-            </TabPanel>
-          </TabsBody>
-        </Tabs>
+            </div>
+            )}
+        </div>
       </CardBody>
     </Card>
   );

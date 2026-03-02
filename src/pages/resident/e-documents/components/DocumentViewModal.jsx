@@ -1,262 +1,125 @@
-import React, { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Button,
-  Typography,
-  Spinner,
-} from "@material-tailwind/react";
+import React from "react";
+import { Dialog, DialogBody } from "@material-tailwind/react";
 import {
   XMarkIcon,
   BookOpenIcon,
   CalendarIcon,
   DocumentArrowDownIcon,
+  TagIcon,
+  DocumentIcon,
 } from "@heroicons/react/24/outline";
-import { useTranslation } from "react-i18next";
 import residentEDocumentsAPI from "../api";
 import { useComplexColor } from "@/hooks/useComplexColor";
 
-export function DocumentViewModal({ open, onClose, documentId }) {
-  const { t } = useTranslation();
+function Row({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
+      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm shrink-0">
+        {Icon && <Icon className="h-4 w-4 shrink-0" />}{label}
+      </div>
+      <span className="text-sm font-medium text-gray-800 dark:text-gray-200 text-right max-w-[60%] truncate">{value || "-"}</span>
+    </div>
+  );
+}
+
+const fmtDate = (d) => {
+  if (!d) return "-";
+  try { return new Date(d).toLocaleDateString("az-AZ", { year: "numeric", month: "long", day: "numeric" }); }
+  catch { return d; }
+};
+
+export function DocumentViewModal({ open, onClose, document: doc }) {
   const { color, getRgba } = useComplexColor();
-  const [document, setDocument] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (open && documentId) {
-      fetchDocumentDetails();
-    } else {
-      setDocument(null);
-      setError(null);
-    }
-  }, [open, documentId]);
-
-  const fetchDocumentDetails = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await residentEDocumentsAPI.getById(documentId);
-      if (response?.success && response?.data) {
-        setDocument(response.data);
-      } else {
-        setError(response?.message || "Məlumat tapılmadı");
-      }
-    } catch (err) {
-      // Mock data on error
-      setDocument({
-        id: documentId,
-        name: "Ödəniş Qəbzisi",
-        type: "Qəbzi",
-        description: "Yanvar ayı üçün ödəniş qəbzisi",
-        created_at: "2026-02-01T10:00:00Z",
-        file_name: "payment-receipt-january.pdf",
-        file_size: "245 KB",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDownload = async () => {
-    if (!document) return;
+    if (!doc) return;
     try {
-      const blob = await residentEDocumentsAPI.download(document.id);
+      const blob = await residentEDocumentsAPI.download(doc.id);
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = document.file_name || document.name || `document-${document.id}.pdf`;
+      link.download = doc.file_name || doc.name || `document-${doc.id}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      // Mock download
-      alert(t("resident.documents.download") || "Yükləmə simulyasiya edildi");
-    }
-  };
-
-  // Set z-index for portal container when modal is open
-  useEffect(() => {
-    if (open) {
-      const setDialogZIndex = () => {
-        const dialogs = document.querySelectorAll('div[role="dialog"]');
-        dialogs.forEach((dialog) => {
-          if (dialog instanceof HTMLElement) {
-            dialog.style.zIndex = '999999';
-          }
-          let parent = dialog.parentElement;
-          while (parent && parent !== document.body) {
-            if (parent instanceof HTMLElement) {
-              const computedStyle = window.getComputedStyle(parent);
-              if (computedStyle.position === 'fixed' || computedStyle.position === 'absolute') {
-                parent.style.zIndex = '999999';
-              }
-            }
-            parent = parent.parentElement;
-          }
-        });
-        const backdrops = document.querySelectorAll('[class*="backdrop"]');
-        backdrops.forEach((backdrop) => {
-          if (backdrop instanceof HTMLElement) {
-            backdrop.style.zIndex = '999998';
-          }
-        });
-      };
-      setDialogZIndex();
-      const timeout = setTimeout(setDialogZIndex, 10);
-      return () => clearTimeout(timeout);
-    }
-  }, [open]);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("az-AZ", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
     } catch {
-      return dateString;
+      alert("Yükləmə simulyasiya edildi");
     }
   };
+
+  if (!doc) return null;
 
   return (
-    <Dialog
-      open={open}
-      handler={onClose}
-      size="lg"
-      className="dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-      dismiss={{ enabled: false }}
-    >
-      <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center justify-between"
-        style={{ background: `linear-gradient(135deg, ${getRgba(0.12)}, ${getRgba(0.06)})` }}
+    <Dialog open={open} handler={onClose} size="md" className="dark:bg-gray-800 !max-w-lg">
+      {/* ── Compact gradient header ── */}
+      <div
+        className="flex items-center justify-between px-5 py-4 rounded-t-xl"
+        style={{ background: `linear-gradient(135deg, ${color}, ${getRgba(0.75)})` }}
       >
-        <div className="flex items-center gap-2">
-          <BookOpenIcon className="h-5 w-5" style={{ color }} />
-          <Typography variant="h5" className="font-bold">
-            {t("resident.documents.pageTitle") || "Sənəd Detalları"}
-          </Typography>
+        <div className="flex items-center gap-3">
+          <div className="p-1.5 bg-white/20 rounded-lg">
+            <BookOpenIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-semibold text-sm leading-tight">Sənəd Detalları</p>
+            <p className="text-white/70 text-xs">#{doc.id}</p>
+          </div>
         </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+        >
+          <XMarkIcon className="h-4 w-4" />
+        </button>
+      </div>
+
+      <DialogBody className="p-5 space-y-4">
+        {/* Name + type banner */}
         <div
-          className="cursor-pointer p-2 rounded-md transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
-          onClick={onClose}
+          className="rounded-xl p-4 flex items-center justify-between gap-3"
+          style={{ background: getRgba(0.06), border: `1px solid ${getRgba(0.15)}` }}
         >
-          <XMarkIcon className="dark:text-white h-5 w-5 cursor-pointer" />
-        </div>
-      </DialogHeader>
-
-      <DialogBody divider className="dark:bg-gray-800 py-6 max-h-[70vh] overflow-y-auto">
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Spinner className="h-8 w-8" />
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <Typography className="text-red-500 dark:text-red-400">
-              {error}
-            </Typography>
-          </div>
-        ) : document ? (
-          <div className="space-y-6">
-            {/* Document Header */}
-            <div className="p-4 rounded-xl" style={{ background: `linear-gradient(135deg, ${getRgba(0.12)}, ${getRgba(0.06)})` }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Typography variant="h5" className="font-bold text-gray-800 dark:text-white mb-1">
-                    {document.name || document.title || t("resident.documents.document") || "Sənəd"}
-                  </Typography>
-                  {document.type && (
-                    <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                      {document.type}
-                    </Typography>
-                  )}
-                </div>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: getRgba(0.15) }}>
-                  <BookOpenIcon className="h-8 w-8" style={{ color }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            {document.description && (
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <Typography variant="h6" className="font-bold mb-3 text-gray-800 dark:text-white">
-                  {t("invoices.form.description") || "Təsvir"}
-                </Typography>
-                <Typography variant="small" className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                  {document.description}
-                </Typography>
-              </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-gray-900 dark:text-white text-base truncate">{doc.name || doc.title || "Sənəd"}</p>
+            {doc.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{doc.description}</p>
             )}
-
-            {/* File Info */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <Typography variant="h6" className="font-bold mb-4 text-gray-800 dark:text-white">
-                {t("documents.fileInfo") || "Fayl Məlumatları"}
-              </Typography>
-              <div className="space-y-2">
-                {document.file_name && (
-                  <div className="flex justify-between">
-                    <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                      {t("documents.fileName") || "Fayl adı"}:
-                    </Typography>
-                    <Typography variant="small" className="font-semibold text-gray-800 dark:text-white">
-                      {document.file_name}
-                    </Typography>
-                  </div>
-                )}
-                {document.file_size && (
-                  <div className="flex justify-between">
-                    <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                      {t("documents.fileSize") || "Fayl ölçüsü"}:
-                    </Typography>
-                    <Typography variant="small" className="font-semibold text-gray-800 dark:text-white">
-                      {document.file_size}
-                    </Typography>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Date */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-              <Typography variant="h6" className="font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                {t("properties.dates") || "Tarix"}
-              </Typography>
-              <Typography variant="small" className="font-semibold text-gray-800 dark:text-white">
-                {formatDate(document.created_at || document.date)}
-              </Typography>
-            </div>
           </div>
-        ) : null}
-      </DialogBody>
+          {doc.type && (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+              {doc.type}
+            </span>
+          )}
+        </div>
 
-      <DialogFooter className="border-t border-gray-200 dark:border-gray-700 dark:bg-gray-800">
-        <Button
-          variant="text"
-          color="gray"
-          onClick={onClose}
-          className="mr-2"
-        >
-          {t("buttons.close") || "Bağla"}
-        </Button>
-        <Button
-          variant="filled"
-          color="green"
-          onClick={handleDownload}
-          className="flex items-center gap-2"
-        >
-          <DocumentArrowDownIcon className="h-4 w-4" />
-          {t("resident.documents.download") || "Yüklə"}
-        </Button>
-      </DialogFooter>
+        {/* Detail rows */}
+        <div className="bg-gray-50 dark:bg-gray-700/30 rounded-xl px-4 py-1">
+          <Row icon={CalendarIcon} label="Tarix"    value={fmtDate(doc.created_at || doc.date)} />
+          <Row icon={TagIcon}      label="Növ"      value={doc.type} />
+          <Row icon={DocumentIcon} label="Fayl adı" value={doc.file_name} />
+          {doc.file_size && <Row icon={null} label="Həcm" value={doc.file_size} />}
+        </div>
+
+        {/* Footer buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleDownload}
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
+            style={{ background: color }}
+          >
+            <DocumentArrowDownIcon className="h-4 w-4" />Yüklə
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Bağla
+          </button>
+        </div>
+      </DialogBody>
     </Dialog>
   );
 }
 
+export default DocumentViewModal;
