@@ -121,6 +121,7 @@
       "paymentDynamics": "Типы платежей и динамика по месяцам",
       "employeePerformance": "Лучшие сотрудники",
       "applicationStatus": "Статус заявок",
+      "departments": "отделов",
       "departmentStats": "Статистика отделов",
       "requestCount": "Количество заявок",
       "allDepartments": "Все отделы",
@@ -235,7 +236,8 @@
     "sales": {
       "title": "Продажи",
       "footer": "+5% по сравнению со вчерашним днем"
-    }
+    },
+    "pageSubtitle": "Платежи, эффективность сотрудников, заявки и статистика отделов"
   },
   "apartmentGroups": {
     "pageTitle": "Группы квартир",

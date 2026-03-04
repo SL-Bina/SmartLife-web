@@ -49,8 +49,6 @@ export function Home() {
     employeeChartSeries,
     pieChartOptions,
     pieChartSeries,
-    departmentChartOptions,
-    departmentChartSeries,
     windowWidth,
   } = useChartConfigs(
     dashboardData.paymentDynamics,
@@ -85,7 +83,7 @@ export function Home() {
       <StatisticsHeader />
       <StatisticsCards paymentStatistics={dashboardData.paymentStatistics} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6">
         <PaymentDynamicsChart
           options={paymentChartOptions}
           series={paymentChartSeries}
@@ -99,7 +97,7 @@ export function Home() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-16 mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6 mb-6">
         <ApplicationStatusChart
           options={pieChartOptions}
           series={pieChartSeries}
@@ -109,9 +107,6 @@ export function Home() {
 
         <DepartmentStatsChart
           departmentStats={dashboardData.departmentStats}
-          chartOptions={departmentChartOptions}
-          chartSeries={departmentChartSeries}
-          chartHeight={getChartHeight(180, 200, 220)}
         />
       </div>
 

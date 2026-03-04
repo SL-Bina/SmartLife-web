@@ -128,6 +128,7 @@
       "employeePerformance": "Ən yaxşı performans göstərən əməkdaşlar",
       "applicationStatus": "Müraciətlərin statusu",
       "departmentStats": "Şöbə statistikaları",
+      "departments": "şöbə",
       "requestCount": "Müraciət sayı",
       "allDepartments": "Bütün şöbələr",
       "technicalDepartment": "Texniki şöbə",
@@ -241,7 +242,8 @@
     "sales": {
       "title": "Satışlar",
       "footer": "+5% dünənlə müqayisədə"
-    }
+    },
+    "pageSubtitle": "Ödənişlər, işçi performansı, müraciətlər və şöbə statistikaları"
   },
   "apartmentGroups": {
     "pageTitle": "Mənzil qrupları",

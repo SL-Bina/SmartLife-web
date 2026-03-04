@@ -122,6 +122,7 @@
       "paymentDynamics": "Payment types and monthly dynamics",
       "employeePerformance": "Top performing employees",
       "applicationStatus": "Application status",
+      "departments": "departments",
       "departmentStats": "Department statistics",
       "requestCount": "Request count",
       "allDepartments": "All departments",
@@ -236,7 +237,8 @@
     "sales": {
       "title": "Sales",
       "footer": "+5% than yesterday"
-    }
+    },
+    "pageSubtitle": "Payments, employee performance, applications and department statistics"
   },
   "apartmentGroups": {
     "pageTitle": "Apartment Groups",
