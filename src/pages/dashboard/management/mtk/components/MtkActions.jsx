@@ -1,9 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Button, Input, Select, Option, Chip, Typography } from "@material-tailwind/react";
-import { PlusIcon, XMarkIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import AppSelect from "@/components/ui/AppSelect";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { clearSelectedMtk } from "@/store/slices/mtkSlice";
 
 const STANDARD_OPTIONS = [10, 20, 50, 75, 100];
 
@@ -19,18 +17,11 @@ export function MtkActions({
   itemsPerPage = 20,
   onItemsPerPageChange
 }) {
-  const dispatch = useAppDispatch();
-  const selectedMtkId = useAppSelector((state) => state.mtk.selectedMtkId);
-  
   const [localName, setLocalName] = useState(search?.name || "");
 
   useEffect(() => {
     setLocalName(search?.name || "");
   }, [search?.name]);
-
-  const handleClearSelection = () => {
-    dispatch(clearSelectedMtk());
-  };
 
   const handleNameInputChange = (value) => {
     setLocalName(value);
@@ -171,17 +162,6 @@ export function MtkActions({
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-2">
-          {selectedMtkId && (
-            <Button
-              type="button"
-              onClick={handleClearSelection}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:from-red-600 hover:to-red-700 transition-all flex items-center justify-center"
-              size="sm"
-            >
-              <XMarkIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-sm">Seçimi ləğv et</span>
-            </Button>
-          )}
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
               type="button"
@@ -255,18 +235,6 @@ export function MtkActions({
 
         {/* Right Section: Action Buttons */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:flex-shrink-0">
-          {selectedMtkId && (
-            <Button
-              type="button"
-              onClick={handleClearSelection}
-              className="bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center text-white shadow-md hover:shadow-lg hover:from-red-600 hover:to-red-700 transition-all whitespace-nowrap w-full sm:w-auto px-4"
-              size="md"
-            >
-              <XMarkIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
-              <span className="text-sm sm:text-base">Seçimi ləğv et</span>
-            </Button>
-          )}
-
           {itemsPerPageOptions && (
             <div className="w-full sm:w-[140px] lg:w-[150px] flex-shrink-0">
               <AppSelect

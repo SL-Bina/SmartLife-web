@@ -17,8 +17,10 @@ import {
   HomeModernIcon,
   BellIcon,
 } from "@heroicons/react/24/solid";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const SendNotificationPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [selectedBlock, setSelectedBlock] = useState("");
@@ -45,7 +47,7 @@ const SendNotificationPage = () => {
 
   return (
     <div className="mt-12 mb-8">
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardHeader
           floated={false}
           shadow={false}

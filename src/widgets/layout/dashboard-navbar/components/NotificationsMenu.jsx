@@ -2,9 +2,11 @@ import React from "react";
 import { IconButton, Menu, MenuHandler, MenuList, MenuItem, Avatar, Typography } from "@material-tailwind/react";
 import { BellIcon, ClockIcon, CreditCardIcon } from "@heroicons/react/24/solid";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function NotificationsMenu({ isMobile = false }) {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
 
   const buttonClass = isMobile
     ? "dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all p-2 relative"
@@ -24,7 +26,10 @@ export function NotificationsMenu({ isMobile = false }) {
           size="sm"
         >
           <BellIcon className={`${isMobile ? "h-5 w-5" : "h-6 w-6"} text-gray-700 dark:text-gray-300`} />
-          <span className={`absolute ${isMobile ? "top-1 right-1 h-2 w-2" : "top-0.5 right-0.5 h-3 w-3"} bg-red-600 rounded-full border border-white dark:border-gray-800`}></span>
+          <span
+            className={`absolute ${isMobile ? "top-1 right-1 h-2 w-2" : "top-0.5 right-0.5 h-3 w-3"} rounded-full border border-white dark:border-gray-800`}
+            style={{ backgroundColor: getMtkRgba(1) }}
+          ></span>
         </IconButton>
       </MenuHandler>
       <MenuList className={`${menuWidth} dark:bg-gray-800 dark:border-gray-700 max-h-[400px] overflow-y-auto rounded-xl shadow-2xl`}>
@@ -68,7 +73,10 @@ export function NotificationsMenu({ isMobile = false }) {
           </div>
         </MenuItem>
         <MenuItem className="flex items-center gap-3 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 rounded-xl">
-          <div className={`${isMobile ? "h-8 w-8" : "h-9 w-9"} grid place-items-center rounded-xl bg-gradient-to-br from-red-600 to-red-700 shadow-lg shadow-red-500/30`}>
+          <div
+            className={`${isMobile ? "h-8 w-8" : "h-9 w-9"} grid place-items-center rounded-xl`}
+            style={{ background: getActiveGradient(0.9, 0.7) }}
+          >
             <CreditCardIcon className={`${isMobile ? "h-3.5 w-3.5" : "h-4 w-4"} text-white`} />
           </div>
           <div className="flex-1 min-w-0">

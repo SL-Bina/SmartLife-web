@@ -8,6 +8,7 @@ import {
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import Chart from "react-apexcharts";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function StatisticsChart({
   color,
@@ -20,9 +21,10 @@ export function StatisticsChart({
   footerKey,
 }) {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba } = useMtkColor();
 
   return (
-    <Card className="border border-red-600 dark:border-red-600 shadow-sm dark:bg-black">
+    <Card className="border dark:border-gray-700 shadow-sm dark:bg-black" style={{ borderColor: getMtkRgba(0.5) }}>
       <CardHeader variant="gradient" color={color} floated={false} shadow={false}>
         <Chart {...chart} />
       </CardHeader>

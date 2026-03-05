@@ -1,16 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardBody, Typography, IconButton, Menu, MenuHandler, MenuList, MenuItem, Tooltip, Button } from "@material-tailwind/react";
-import { EllipsisVerticalIcon, ChevronUpIcon, ChevronDownIcon, PencilIcon, TrashIcon, CheckCircleIcon, GlobeAltIcon, MapPinIcon, EnvelopeIcon, PhoneIcon, BuildingOffice2Icon, EyeIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, ChevronUpIcon, ChevronDownIcon, PencilIcon, TrashIcon, GlobeAltIcon, MapPinIcon, EnvelopeIcon, PhoneIcon, BuildingOffice2Icon, EyeIcon } from "@heroicons/react/24/outline";
 import { useMaterialTailwindController } from "@/store/hooks/useMaterialTailwind";
-import { useMtkColor } from "@/store/exports";
 
 const DEFAULT_COLOR = "#dc2626";
 
-export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSelect, selectedMtkId }) {
+export function MtkTable({ items = [], loading, onView, onEdit, onDelete }) {
   const navigate = useNavigate();
   const [controller] = useMaterialTailwindController();
-  const { colorCode, getRgba } = useMtkColor();
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   const getRgbaColor = (hex, opacity = 1) => {
@@ -76,7 +74,6 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
             <thead>
               <tr className="bg-gray-50/80 dark:bg-gray-900/50 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50">
                 <th className="px-4 xl:px-6 py-3 xl:py-4 text-left"><div className="h-3 w-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></th>
-                <th className="px-4 xl:px-6 py-3 xl:py-4 text-left"><div className="h-3 w-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></th>
                 <th className="px-4 xl:px-6 py-3 xl:py-4 text-left"><div className="h-3 w-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></th>
                 <th className="px-4 xl:px-6 py-3 xl:py-4 text-left"><div className="h-3 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></th>
                 <th className="px-4 xl:px-6 py-3 xl:py-4 text-left"><div className="h-3 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></th>
@@ -88,12 +85,6 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {Array.from({ length: 3 }).map((_, i) => (
                 <tr key={i} style={{ opacity: 1 - (i / 3) * 0.9 }}>
-                  {/* Seç */}
-                  <td className="px-4 xl:px-6 py-3 xl:py-4 whitespace-nowrap">
-                    <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 xl:w-6 xl:h-6 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                    </div>
-                  </td>
                   {/* ID */}
                   <td className="px-4 xl:px-6 py-3 xl:py-4 whitespace-nowrap">
                     <div className="h-6 w-12 bg-gray-100 dark:bg-gray-700 rounded-md animate-pulse" />
@@ -154,11 +145,6 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50/80 dark:bg-gray-900/50 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50">
-              <th className="px-4 xl:px-6 py-3 xl:py-4 text-left">
-                <Typography variant="small" className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs">
-                  Seç
-                </Typography>
-              </th>
               <th
                 className="px-4 xl:px-6 py-3 xl:py-4 text-left cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/70 transition-colors"
                 onClick={() => handleSort("id")}
@@ -217,55 +203,21 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {sortedItems.map((item, index) => {
               const itemColorCode = item.meta?.color_code || DEFAULT_COLOR;
-              const isSelected = selectedMtkId === item.id;
               const hoverColor = getRgbaColor(itemColorCode, 0.08);
               
               return (
                 <tr
                   key={item.id ?? `mtk-${index}`}
-                  className={`transition-all duration-200 cursor-pointer ${
-                    isSelected ? "ring-2 ring-offset-2" : ""
-                  }`}
-                  onClick={() => onSelect?.(item)}
-                  style={{
-                    ...(isSelected && colorCode ? { 
-                      backgroundColor: getRgba(colorCode, 0.08),
-                      ringColor: colorCode,
-                    } : {}),
-                  }}
+                  className="transition-all duration-200"
                   onMouseEnter={(e) => {
-                    if (hoverColor && !isSelected) {
+                    if (hoverColor) {
                       e.currentTarget.style.backgroundColor = hoverColor;
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isSelected || !colorCode) {
-                      e.currentTarget.style.backgroundColor = '';
-                    } else {
-                      e.currentTarget.style.backgroundColor = getRgba(colorCode, 0.08);
-                    }
+                    e.currentTarget.style.backgroundColor = '';
                   }}
                 >
-                  <td className="px-4 xl:px-6 py-3 xl:py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center justify-center">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelect?.(item);
-                        }}
-                        className={`w-5 h-5 xl:w-6 xl:h-6 rounded-full flex items-center justify-center transition-all ${
-                          isSelected 
-                            ? "bg-current text-white shadow-md" 
-                            : "bg-gray-200 dark:bg-gray-700 text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
-                        }`}
-                        style={isSelected && colorCode ? { backgroundColor: colorCode } : {}}
-                      >
-                        {isSelected && (
-                          <CheckCircleIcon className="h-3 w-3 xl:h-4 xl:w-4 text-white" />
-                        )}
-                      </button>
-                    </div>
-                  </td>
                   <td className="px-4 xl:px-6 py-3 xl:py-4 whitespace-nowrap">
                     <span
                       className="inline-flex items-center px-2 xl:px-2.5 py-0.5 xl:py-1 rounded-md text-xs font-semibold font-mono"
@@ -396,16 +348,6 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
                         <MenuItem 
                           onClick={(e) => {
                             e.stopPropagation();
-                            onSelect?.(item);
-                          }} 
-                          className="flex items-center gap-2"
-                        >
-                          <CheckCircleIcon className="h-4 w-4" />
-                          Seç
-                        </MenuItem>
-                        <MenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
                             onEdit?.(item);
                           }} 
                           className="flex items-center gap-2"
@@ -447,41 +389,15 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
       <div className="lg:hidden space-y-3 p-3 sm:p-4">
         {sortedItems.map((item, index) => {
           const itemColorCode = item.meta?.color_code || DEFAULT_COLOR;
-          const isSelected = selectedMtkId === item.id;
           
           return (
             <Card
               key={item.id ?? `mtk-${index}`}
-              className={`transition-all duration-200 cursor-pointer ${
-                isSelected ? "ring-2 ring-offset-2" : ""
-              }`}
-              onClick={() => onSelect?.(item)}
-              style={{
-                ...(isSelected && colorCode ? { 
-                  backgroundColor: getRgba(colorCode, 0.08),
-                  ringColor: colorCode,
-                } : {}),
-              }}
+              className="transition-all duration-200"
             >
               <CardBody className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelect?.(item);
-                      }}
-                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-                        isSelected 
-                          ? "bg-current text-white shadow-md" 
-                          : "bg-gray-200 dark:bg-gray-700 text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
-                      }`}
-                      style={isSelected && colorCode ? { backgroundColor: colorCode } : {}}
-                    >
-                      {isSelected && (
-                        <CheckCircleIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                      )}
-                    </button>
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       {item.meta?.color_code && (
                         <div
@@ -534,16 +450,6 @@ export function MtkTable({ items = [], loading, onView, onEdit, onDelete, onSele
                             Bax
                           </MenuItem>
                         )}
-                        <MenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelect?.(item);
-                          }} 
-                          className="flex items-center gap-2"
-                        >
-                          <CheckCircleIcon className="h-4 w-4" />
-                          Seç
-                        </MenuItem>
                         <MenuItem 
                           onClick={(e) => {
                             e.stopPropagation();

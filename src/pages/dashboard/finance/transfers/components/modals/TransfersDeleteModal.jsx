@@ -2,14 +2,16 @@ import React from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Typography } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function TransfersDeleteModal({ open, onClose, transfer, onConfirm }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   if (!open || !transfer) return null;
 
   return (
-    <Dialog open={open} handler={onClose} size="sm" className="dark:bg-gray-800 border border-red-600 dark:border-gray-700" dismiss={{ enabled: false }}>
+    <Dialog open={open} handler={onClose} size="sm" className="dark:bg-gray-800 border dark:border-gray-700" dismiss={{ enabled: false }}>
       <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center justify-between">
         <Typography variant="h5" className="font-bold">
           {t("transfers.delete.title")}

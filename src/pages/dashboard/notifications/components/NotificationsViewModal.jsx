@@ -2,14 +2,16 @@ import React from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Input, Typography, Chip } from "@material-tailwind/react";
 import { BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function NotificationsViewModal({ open, onClose, notification }) {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
 
   if (!open || !notification) return null;
 
   return (
-    <Dialog open={open} handler={onClose} size="lg" className="dark:bg-gray-800 border border-red-600 dark:border-gray-700 shadow-2xl" dismiss={{ enabled: false }}>
+    <Dialog open={open} handler={onClose} size="lg" className="dark:bg-gray-800 border dark:border-gray-700 shadow-2xl" style={{ borderColor: getMtkRgba(0.7) }} dismiss={{ enabled: false }}>
       <DialogHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-between rounded-t-lg">
         <div className="flex items-center gap-3">
           <BellIcon className="h-5 w-5 text-blue-500" />

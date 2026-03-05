@@ -18,6 +18,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/solid";
 import { StatisticsCard } from "@/widgets/cards";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const mockComplexData = {
   totalComplexes: 5,
@@ -75,6 +76,7 @@ const mockRecentActivities = [
 ];
 
 const ComplexDashboardPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
 
@@ -267,7 +269,7 @@ const ComplexDashboardPage = () => {
       </div>
 
       {/* Summary Card */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 mb-6">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 mb-6" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardHeader
           floated={false}
           shadow={false}
@@ -323,7 +325,7 @@ const ComplexDashboardPage = () => {
       </Card>
 
       {/* Recent Activities Table */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardHeader
           floated={false}
           shadow={false}

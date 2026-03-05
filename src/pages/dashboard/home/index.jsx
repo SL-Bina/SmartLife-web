@@ -9,9 +9,11 @@ import { DepartmentStatsChart } from "./components/DepartmentStatsChart";
 import { ResidentStatsCards } from "./components/ResidentStatsCards";
 import { fetchAllDashboardData } from "./api";
 import { StatisticsHeader } from "./components/StatisticsHeader";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function Home() {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
   const [dashboardData, setDashboardData] = useState({
     paymentStatistics: null,
     paymentDynamics: null,
@@ -61,7 +63,7 @@ export function Home() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: getMtkRgba(0.7) }}></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">Yüklənir...</p>
         </div>
       </div>

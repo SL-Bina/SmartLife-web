@@ -1,10 +1,12 @@
 import React from "react";
 import { Typography, Button } from "@material-tailwind/react";
 import { HomeIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearSelectedProperty } from "@/store/slices/propertySlice";
 
 export function PropertyHeader() {
+  const { getRgba, getActiveGradient } = useMtkColor();
   const dispatch = useAppDispatch();
   const selectedProperty = useAppSelector((state) => state.property.selectedProperty);
   const selectedPropertyId = useAppSelector((state) => state.property.selectedPropertyId);
@@ -16,8 +18,8 @@ export function PropertyHeader() {
 
   return (
     <div 
-      className="relative w-full overflow-hidden rounded-xl shadow-lg p-6 bg-gradient-to-r from-teal-600 to-teal-800 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 mt-4"
-      style={{ position: 'relative', zIndex: 0 }}
+      className="relative w-full overflow-hidden rounded-xl shadow-lg p-6 mt-4"
+      style={{ background: getActiveGradient(0.9, 0.7), border: `1px solid ${getRgba(0.3)}`, position: 'relative', zIndex: 0 }}
     >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{

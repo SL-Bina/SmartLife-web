@@ -6,6 +6,7 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 import { AsyncSearchSelect } from "@/components/ui/AsyncSearchSelect";
 import AppSelect from "@/components/ui/AppSelect";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 import { setSelectedMtk } from "@/store/slices/mtkSlice";
 import { setSelectedComplex } from "@/store/slices/complexSlice";
 import { setSelectedBuilding } from "@/store/slices/buildingSlice";
@@ -33,31 +34,31 @@ const LEVEL_CONFIG = {
     gradientColors: "from-red-500 to-red-600",
   },
   [ENTITY_LEVELS.COMPLEX]: {
-    filters: ["mtk"],
+    filters: [],
     label: "Complex",
     addButtonText: "Complex əlavə et",
     gradientColors: "from-blue-500 to-blue-600",
   },
   [ENTITY_LEVELS.BUILDING]: {
-    filters: ["mtk", "complex"],
+    filters: ["complex"],
     label: "Bina",
     addButtonText: "Bina əlavə et",
     gradientColors: "from-purple-500 to-purple-600",
   },
   [ENTITY_LEVELS.BLOCK]: {
-    filters: ["mtk", "complex", "building"],
+    filters: ["complex", "building"],
     label: "Blok",
     addButtonText: "Blok əlavə et",
     gradientColors: "from-indigo-500 to-indigo-600",
   },
   [ENTITY_LEVELS.PROPERTY]: {
-    filters: ["mtk", "complex", "building", "block"],
+    filters: ["complex", "building", "block"],
     label: "Mənzil",
     addButtonText: "Mənzil əlavə et",
     gradientColors: "from-teal-500 to-teal-600",
   },
   [ENTITY_LEVELS.RESIDENT]: {
-    filters: ["mtk", "complex", "building", "block", "property"],
+    filters: ["complex", "building", "block", "property"],
     label: "Sakin",
     addButtonText: "Sakin əlavə et",
     gradientColors: "from-orange-500 to-orange-600",
@@ -131,6 +132,8 @@ export function ManagementActions({
   const selectedBlock = useAppSelector((state) => state.block.selectedBlock);
   const selectedProperty = useAppSelector((state) => state.property.selectedProperty);
 
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
+
   const [selectedLabels, setSelectedLabels] = useState({});
   const [localName, setLocalName] = useState(search?.name || "");
 
@@ -143,20 +146,6 @@ export function ManagementActions({
   };
 
   const filters = config.filters;
-
-  // Auto-select first MTK on mount (or after reset) if none selected
-  useEffect(() => {
-    if (!filters.includes("mtk") || mtkId) return;
-    api.get(FILTER_CONFIG.mtk.endpoint, { params: { per_page: 1, page: 1 } })
-      .then((res) => {
-        const item = parseFirstItem(res);
-        if (item) {
-          dispatch(setSelectedMtk({ id: item.id, mtk: item }));
-          setSelectedLabels((prev) => ({ ...prev, mtk: item.name }));
-        }
-      })
-      .catch(() => {});
-  }, [mtkId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-select first Complex when mtkId changes and no complex is selected
   useEffect(() => {
@@ -229,9 +218,8 @@ export function ManagementActions({
     }
   }, [selectedMtk, selectedComplex, selectedBuilding, selectedBlock, selectedProperty]);
 
-  // Refresh all filters - clear Redux and notify parent
+  // Refresh child filters (keep MTK selected) and notify parent
   const handleRefreshFilters = () => {
-    dispatch(setSelectedMtk({ id: null, mtk: null }));
     dispatch(setSelectedComplex({ id: null, complex: null }));
     dispatch(setSelectedBuilding({ id: null, building: null }));
     dispatch(setSelectedBlock({ id: null, block: null }));
@@ -602,7 +590,7 @@ export function ManagementActions({
                   key={filter.key}
                   value={`${filter.label}: ${filter.value}`}
                   onClose={() => onRemoveFilter?.(filter.key)}
-                  className={`bg-gradient-to-r ${config.gradientColors} text-white border-0 shadow-md`}
+                  className="text-white border-0 shadow-md" style={{ background: getActiveGradient(0.9, 0.7) }}
                   size="sm"
                 />
               ))}
@@ -627,7 +615,7 @@ export function ManagementActions({
             <Button
               type="button"
               onClick={onSearchClick}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              className="flex-1 text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2" style={{ background: getActiveGradient(0.9, 0.7) }}
               size="sm"
             >
               <MagnifyingGlassIcon className="h-4 w-4" />
@@ -638,7 +626,7 @@ export function ManagementActions({
             <Button
               type="button"
               onClick={onCreateClick}
-              className={`flex-1 bg-gradient-to-r ${config.gradientColors} text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2`}
+              className="flex-1 text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2" style={{ background: getActiveGradient(0.9, 0.7) }}
               size="sm"
             >
               <PlusIcon className="h-4 w-4" />
@@ -710,7 +698,7 @@ export function ManagementActions({
               <Button
                 type="button"
                 onClick={onSearchClick}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all px-4"
+                className="flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all px-4" style={{ background: getActiveGradient(0.9, 0.7) }}
                 size="md"
               >
                 <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
@@ -721,7 +709,7 @@ export function ManagementActions({
               <Button
                 type="button"
                 onClick={onCreateClick}
-                className={`bg-gradient-to-r ${config.gradientColors} flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all px-4`}
+                className="flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all px-4" style={{ background: getActiveGradient(0.9, 0.7) }}
                 size="md"
               >
                 <PlusIcon className="h-4 w-4 mr-2" />
@@ -743,7 +731,7 @@ export function ManagementActions({
                   key={filter.key}
                   value={`${filter.label}: ${filter.value}`}
                   onClose={() => onRemoveFilter?.(filter.key)}
-                  className={`bg-gradient-to-r ${config.gradientColors} text-white border-0 shadow-sm`}
+                  className="text-white border-0 shadow-sm" style={{ background: getActiveGradient(0.9, 0.7) }}
                   size="sm"
                 />
               ))}

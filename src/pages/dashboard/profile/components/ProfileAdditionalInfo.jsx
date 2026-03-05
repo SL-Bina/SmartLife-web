@@ -2,12 +2,14 @@ import React from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { CalendarIcon, UserCircleIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ProfileAdditionalInfo({ user }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   return (
-    <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 min-h-0 flex flex-col w-1/2">
+    <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 min-h-0 flex flex-col w-1/2">
       <CardBody className="p-3 dark:bg-gray-800 flex-1 flex flex-col min-h-0">
         <Typography variant="h6" className="mb-3 font-bold text-blue-gray-900 dark:text-white text-xs flex-shrink-0">
           {t("profile.additionalInfo") || "ƏLAVƏ MƏLUMATLAR"}
@@ -52,7 +54,7 @@ export function ProfileAdditionalInfo({ user }) {
 
           <div className="flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 flex-1">
             <div className="p-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg flex-shrink-0">
-              <MapPinIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <MapPinIcon className="h-4 w-4" style={{ color: getMtkRgba(1) }} />
             </div>
             <div className="min-w-0 flex-1">
               <Typography variant="small" className="text-blue-gray-600 dark:text-gray-400 text-xs mb-1 font-semibold">

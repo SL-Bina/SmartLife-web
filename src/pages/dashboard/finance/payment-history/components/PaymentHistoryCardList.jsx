@@ -2,14 +2,16 @@ import React from "react";
 import { Card, CardBody, Typography, IconButton, Menu, MenuHandler, MenuList, MenuItem } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function PaymentHistoryCardList({ payments, onView, onEdit, onDelete }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:hidden px-4 pt-4">
       {payments.map((row) => (
-        <Card key={row.id} className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+        <Card key={row.id} className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
           <CardBody className="space-y-2 dark:bg-gray-800">
             <div className="flex items-center justify-between">
               <Typography variant="small" color="blue-gray" className="font-semibold dark:text-white">

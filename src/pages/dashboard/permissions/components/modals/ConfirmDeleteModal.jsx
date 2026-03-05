@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ConfirmDeleteModal({
   open,
@@ -18,6 +19,7 @@ export function ConfirmDeleteModal({
   loading = false,
 }) {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
   if (!open) return null;
 
   return (
@@ -25,7 +27,7 @@ export function ConfirmDeleteModal({
       open={open}
       handler={onClose}
       size="sm"
-      className="dark:bg-gray-900 border border-red-600 dark:border-gray-700"
+      className="dark:bg-gray-900 border dark:border-gray-700" style={{ borderColor: getMtkRgba(0.7) }}
       dismiss={{ enabled: false }}
     >
       <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">

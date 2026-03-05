@@ -3,11 +3,13 @@ import { IconButton, Menu, MenuHandler, MenuList, MenuItem } from "@material-tai
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 import { useMaterialTailwindController, setDarkMode } from "@/store/exports";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function DarkModeToggle({ isMobile = false }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { darkMode } = controller;
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba } = useMtkColor();
 
   const buttonClass = isMobile
     ? "dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all p-2"
@@ -32,18 +34,20 @@ export function DarkModeToggle({ isMobile = false }) {
       <MenuList className="dark:bg-gray-800 dark:border-gray-700 min-w-[160px] rounded-xl shadow-xl">
         <MenuItem
           onClick={() => setDarkMode(dispatch, false)}
-          className={`dark:text-gray-300 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 flex items-center gap-3 rounded-lg ${!darkMode ? "bg-gradient-to-r from-red-600/10 to-red-500/5" : ""}`}
+          className="dark:text-gray-300 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 flex items-center gap-3 rounded-lg"
+          style={!darkMode ? { background: `linear-gradient(to right, ${getMtkRgba(0.1)}, ${getMtkRgba(0.05)})` } : {}}
         >
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${!darkMode ? "bg-red-600/20 dark:bg-red-600/30" : "bg-gray-200/50 dark:bg-gray-700/50"}`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${!darkMode ? "" : "bg-gray-200/50 dark:bg-gray-700/50"}`}>
             <SunIcon className="h-4 w-4 text-yellow-500" />
           </div>
           <span className="font-semibold">{t("header.lightMode")}</span>
         </MenuItem>
         <MenuItem
           onClick={() => setDarkMode(dispatch, true)}
-          className={`dark:text-gray-300 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 flex items-center gap-3 rounded-lg ${darkMode ? "bg-gradient-to-r from-red-600/10 to-red-500/5" : ""}`}
+          className="dark:text-gray-300 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 flex items-center gap-3 rounded-lg"
+          style={darkMode ? { background: `linear-gradient(to right, ${getMtkRgba(0.1)}, ${getMtkRgba(0.05)})` } : {}}
         >
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${darkMode ? "bg-red-600/20 dark:bg-red-600/30" : "bg-gray-200/50 dark:bg-gray-700/50"}`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${darkMode ? "" : "bg-gray-200/50 dark:bg-gray-700/50"}`}>
             <MoonIcon className="h-4 w-4 text-gray-700 dark:text-gray-300" />
           </div>
           <span className="font-semibold">{t("header.darkMode")}</span>

@@ -8,8 +8,10 @@ import { KPIHeader } from "./components/KPIHeader";
 import { KPIActions } from "./components/KPIActions";
 import { KPITable } from "./components/KPITable";
 import { KPIFilterModal } from "./components/modals/KPIFilterModal";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const KPIPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [startDate, setStartDate] = useState("2025-11-01");
   const [endDate, setEndDate] = useState("2025-11-20");
@@ -74,7 +76,7 @@ const KPIPage = () => {
         onPDFExport={handlePDFExport}
       />
 
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardBody className="p-0 dark:bg-gray-800">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-10">

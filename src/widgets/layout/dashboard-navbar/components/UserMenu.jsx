@@ -4,10 +4,12 @@ import { Button, IconButton, Menu, MenuHandler, MenuList, MenuItem, Avatar, Typo
 import { UserCircleIcon, Cog6ToothIcon } from "@heroicons/react/24/solid";
 import { useAuth } from "@/store/exports";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function UserMenu({ isMobile = false, showButton = false }) {
   const { user, logout, isInitialized } = useAuth();
   const { t } = useTranslation();
+  const { getActiveGradient } = useMtkColor();
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export function UserMenu({ isMobile = false, showButton = false }) {
               className="hidden items-center gap-3 px-3 lg:px-4 xl:flex normal-case dark:text-gray-300 hover:bg-gray-200/70 dark:hover:bg-gray-700/70 rounded-xl transition-all"
             >
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 overflow-hidden" style={{ background: getActiveGradient(0.9, 0.7) }}>
                   {!imageError ? (
                     <img
                       src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || 'User')}&background=random&color=fff&size=128`}
@@ -137,7 +139,7 @@ export function UserMenu({ isMobile = false, showButton = false }) {
               size="sm"
             >
               <div className="relative">
-                <div className={`${isMobile ? "w-10 h-10" : "w-8 h-8"} rounded-full bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 overflow-hidden`}>
+                <div className={`${isMobile ? "w-10 h-10" : "w-8 h-8"} rounded-full flex items-center justify-center border-2 border-gray-200 dark:border-gray-700 overflow-hidden`} style={{ background: getActiveGradient(0.9, 0.7) }}>
                   {!imageError ? (
                     <img
                       src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || 'User')}&background=random&color=fff&size=128`}

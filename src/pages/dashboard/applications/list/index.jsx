@@ -16,8 +16,10 @@ import { ApplicationsListPrioritiesModal } from "./components/modals/Application
 import { ApplicationsListFormModal } from "./components/modals/ApplicationsListFormModal";
 import { ApplicationsListViewModal } from "./components/modals/ApplicationsListViewModal";
 import { ApplicationsListDeleteModal } from "./components/modals/ApplicationsListDeleteModal";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const ApplicationsListPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [createOpen, setCreateOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
@@ -138,7 +140,7 @@ const ApplicationsListPage = () => {
     <div className="">
       <ApplicationsListHeader />
 
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 mb-6">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 mb-6" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardBody className="p-4 dark:bg-gray-800">
           <ApplicationsListActions 
             onFilterClick={() => setFilterOpen(true)} 
@@ -149,7 +151,7 @@ const ApplicationsListPage = () => {
         </CardBody>
       </Card>
 
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardBody className="px-0 pt-0 pb-2 dark:bg-gray-800">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-10">

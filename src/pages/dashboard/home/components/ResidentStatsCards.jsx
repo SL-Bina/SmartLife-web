@@ -3,9 +3,11 @@ import { Card, Typography } from "@material-tailwind/react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { getResidentStats } from "@/data/dashboard-data";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ResidentStatsCards({ residentStats: residentStatsFromProps }) {
   const { t } = useTranslation();
+  const { getRgba, colorCode } = useMtkColor();
   // Use prop data if available, otherwise fallback to mock data
   const residentStats = residentStatsFromProps || getResidentStats(t);
 
@@ -21,12 +23,12 @@ export function ResidentStatsCards({ residentStats: residentStatsFromProps }) {
           whileTap={{ scale: 0.95 }}
           className="cursor-pointer"
         >
-          <Card className=" dark:border-gray-700/50 shadow-xl shadow-red-200/50 dark:shadow-gray-900/50 bg-gradient-to-br from-white via-white to-gray-50/50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-center p-3 sm:p-4 lg:p-6 h-full flex flex-col items-center justify-center min-h-[140px] sm:min-h-[160px] lg:min-h-[180px] rounded-2xl transition-all duration-300">
+          <Card className=" dark:border-gray-700/50 shadow-xl dark:shadow-gray-900/50 bg-gradient-to-br from-white via-white to-gray-50/50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 text-center p-3 sm:p-4 lg:p-6 h-full flex flex-col items-center justify-center min-h-[140px] sm:min-h-[160px] lg:min-h-[180px] rounded-2xl transition-all duration-300">
             <div className="mb-2 sm:mb-3 lg:mb-4 flex justify-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl bg-gradient-to-br from-red-600/10 to-red-500/5 dark:from-red-600/20 dark:to-red-500/10 flex items-center justify-center">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl flex items-center justify-center" style={{ backgroundColor: getRgba(0.12) }}>
                 {React.createElement(stat.icon, {
-                  className:
-                    "w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-red-600 dark:text-red-400",
+                  className: "w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8",
+                  style: { color: colorCode },
                 })}
               </div>
             </div>
@@ -44,7 +46,8 @@ export function ResidentStatsCards({ residentStats: residentStatsFromProps }) {
             </Typography>
             <Typography
               variant="small"
-              className="text-red-600 dark:text-red-400 text-[10px] sm:text-xs font-bold hover:underline transition-all"
+              className="text-[10px] sm:text-xs font-bold hover:underline transition-all"
+              style={{ color: colorCode }}
             >
               {t("dashboard.residentStats.details")}
             </Typography>

@@ -26,6 +26,7 @@ import {
   PlusIcon,
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const mockPackages = [
   {
@@ -69,6 +70,7 @@ const mockPackages = [
 const ITEMS_PER_PAGE = 10;
 
 const ReceptionPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -188,7 +190,7 @@ const ReceptionPage = () => {
 
   return (
     <div className="mt-12 mb-8">
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardHeader
           floated={false}
           shadow={false}

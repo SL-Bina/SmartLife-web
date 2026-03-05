@@ -2,12 +2,14 @@ import React from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { HomeIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ProfileComplexInfo({ user }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   return (
-    <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 min-h-0 flex flex-col w-1/2">
+    <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 min-h-0 flex flex-col w-1/2">
       <CardBody className="p-3 dark:bg-gray-800 flex-1 flex flex-col min-h-0">
         <Typography variant="h6" className="mb-2 font-bold text-blue-gray-900 dark:text-white text-xs flex-shrink-0">
           {t("profile.complexInfo") || "KOMPLEKS MƏLUMATLARI"}

@@ -3,11 +3,13 @@ import { Typography, Button } from "@material-tailwind/react";
 import { BuildingOffice2Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearSelectedComplex } from "@/store/slices/complexSlice";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ComplexHeader() {
   const dispatch = useAppDispatch();
   const selectedComplex = useAppSelector((state) => state.complex.selectedComplex);
   const selectedComplexId = useAppSelector((state) => state.complex.selectedComplexId);
+  const { getRgba, getActiveGradient } = useMtkColor();
 
   const handleClearSelection = (e) => {
     e.stopPropagation();
@@ -16,8 +18,8 @@ export function ComplexHeader() {
 
   return (
     <div 
-      className="relative w-full overflow-hidden rounded-xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 bg-gradient-to-r from-blue-600 to-blue-800 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 mt-2 sm:mt-3 md:mt-4"
-      style={{ position: 'relative', zIndex: 0 }}
+      className="relative w-full overflow-hidden rounded-xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 mt-2 sm:mt-3 md:mt-4"
+      style={{ background: getActiveGradient(0.9, 0.7), border: `1px solid ${getRgba(0.3)}`, position: 'relative', zIndex: 0 }}
     >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{

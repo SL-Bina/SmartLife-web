@@ -165,6 +165,7 @@ export function Dashboard() {
   const dispatch = useDispatch();
   const selectedPropertyId = useSelector((state) => state.property.selectedPropertyId);
   const [residentPropertyCount, setResidentPropertyCount] = useState(null);
+  const [residentReady, setResidentReady] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
   useDocumentTitle();
@@ -191,41 +192,42 @@ export function Dashboard() {
   }, [user?.id, isInitialized, refreshUser]);
 
   const selectedProperty = useSelector((state) => state.property.selectedProperty);
-  useEffect(() => {
-    if (user?.is_resident && selectedPropertyId && !selectedProperty) {
-      import("@/pages/resident/myproperties/api").then(({ default: myPropertiesAPI }) => {
-        myPropertiesAPI.getById(selectedPropertyId)
-          .then((resp) => {
-            if (resp?.data) {
-              dispatch(setSelectedProperty({ id: selectedPropertyId, property: resp.data }));
-            }
-          })
-          .catch(() => {
-          });
-      });
-    }
-  }, [user, selectedPropertyId, selectedProperty, dispatch]);
 
+  // Single effect: fetch fresh property list for residents so colors (sub_data.complex) are
+  // always up-to-date at entry. Also acts as a gate: residentReady stays false until the
+  // properties request settles, which keeps the global loading screen alive long enough for
+  // useComplexColor to have correct data before any page renders.
   useEffect(() => {
-    if (user?.is_resident) {
-      myPropertiesAPI.getAll()
-        .then((resp) => {
-          const list = resp?.data?.data || resp?.data || [];
-          const propertiesList = Array.isArray(list) ? list : [];
-          setResidentPropertyCount(propertiesList.length);
+    if (!user) return;
 
-          if (!selectedPropertyId && propertiesList.length > 0) {
-            const firstProperty = propertiesList[0];
-            dispatch(setSelectedProperty({ id: firstProperty?.id ?? null, property: firstProperty ?? null }));
-          }
-        })
-        .catch(() => setResidentPropertyCount(0));
+    if (!user.is_resident) {
+      setResidentReady(true);
+      return;
     }
-  }, [user, selectedPropertyId, dispatch]);
+
+    setResidentReady(false);
+    myPropertiesAPI.getAll()
+      .then((resp) => {
+        const list = resp?.data?.data || resp?.data || [];
+        const propertiesList = Array.isArray(list) ? list : [];
+        setResidentPropertyCount(propertiesList.length);
+
+        if (propertiesList.length > 0) {
+          // Always sync with full API data so sub_data.complex.color is present
+          const freshProperty =
+            propertiesList.find((p) => p.id === selectedPropertyId) || propertiesList[0];
+          dispatch(
+            setSelectedProperty({ id: freshProperty?.id ?? null, property: freshProperty ?? null })
+          );
+        }
+      })
+      .catch(() => setResidentPropertyCount(0))
+      .finally(() => setResidentReady(true));
+  }, [user?.id]);
 
   const hasToken = typeof document !== 'undefined' && document.cookie.includes('smartlife_token=');
 
-  if (!isInitialized) {
+  if (!isInitialized || !residentReady) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-gray-50/50 dark:bg-black">
         <div className="text-center">

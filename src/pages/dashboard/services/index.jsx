@@ -14,8 +14,10 @@ import { ServicesFilterModal } from "./components/modals/ServicesFilterModal";
 import { ServicesFormModal } from "./components/modals/ServicesFormModal";
 import { ServicesDeleteModal } from "./components/modals/ServicesDeleteModal";
 import { ServicesViewModal } from "./components/modals/ServicesViewModal";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const ServicesPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -191,7 +193,7 @@ const ServicesPage = () => {
         </Alert>
       )}
 
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardHeader
           floated={false}
           shadow={false}

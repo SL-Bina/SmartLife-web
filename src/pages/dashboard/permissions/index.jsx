@@ -17,7 +17,6 @@ import { useDynamicToast } from "@/hooks/useDynamicToast";
 import DynamicToast from "@/components/DynamicToast";
 import { PermissionHeader } from "./components/PermissionHeader";
 
-
 const PermissionsPage = () => {
   const { t } = useTranslation();
 
@@ -442,31 +441,12 @@ const PermissionsPage = () => {
   return (
     <div className="h-full flex flex-col">
 
-      {/* <PermissionHeader /> */}
+      <PermissionHeader
+        selectedRoleId={selectedRoleId}
+        saving={saving}
+        onSavePermissions={handleSavePermissions}
+      />
 
-      <div className="w-full bg-black dark:bg-gray-800 my-2 sm:my-3 lg:my-4 p-3 sm:p-4 rounded-lg shadow-lg mb-3 sm:mb-4 lg:mb-5 border border-red-600 dark:border-gray-700 flex-shrink-0">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <Typography variant="h5" className="text-white font-bold text-lg sm:text-xl leading-tight">
-              {t("permissions.pageTitle") || "İstifadəçi Hüquqları"}
-            </Typography>
-            <Typography variant="small" className="text-white/90 dark:text-white/90 mt-1.5 text-xs sm:text-sm font-medium">
-              {t("permissions.subtitle") || "İstifadəçi rollarını və icazələrini idarə edin"}
-            </Typography>
-          </div>
-          {selectedRoleId && (
-            <Button
-              color="green"
-              size="sm"
-              onClick={handleSavePermissions}
-              disabled={saving}
-              className="dark:bg-green-600 dark:hover:bg-green-700 text-white"
-            >
-              {saving ? t("buttons.saving") || "Yadda saxlanır..." : t("permissions.savePermissions") || "İcazələri yadda saxla"}
-            </Button>
-          )}
-        </div>
-      </div>
       <DynamicToast
         open={toast.open}
         type={toast.type}

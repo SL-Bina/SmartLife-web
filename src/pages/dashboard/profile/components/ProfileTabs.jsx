@@ -14,8 +14,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { profileAPI } from "../api";
 import { useProfileForm, usePasswordForm } from "../hooks";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ProfileTabs({ user, refreshUser, messages }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("personal");
   const [loading, setLoading] = useState(false);
@@ -130,29 +132,23 @@ export function ProfileTabs({ user, refreshUser, messages }) {
   };
 
   return (
-    <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 flex flex-col min-h-0">
+    <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 flex flex-col min-h-0">
       <CardBody className="p-3 dark:bg-gray-800 flex-1 flex flex-col min-h-0">
         <Tabs value={activeTab} className="flex-1 flex flex-col min-h-0">
-          <TabsHeader className="rounded-none border-b border-red-600 dark:border-gray-700 bg-transparent p-0 flex-shrink-0">
+          <TabsHeader className="rounded-none border-b dark:border-gray-700 bg-transparent p-0 flex-shrink-0" style={{ borderColor: getMtkRgba(0.7) }}>
             <Tab
               value="personal"
               onClick={() => handleTabChange("personal")}
-              className={
-                activeTab === "personal"
-                  ? "border-b-2 border-red-600 text-red-600 dark:text-red-400"
-                  : "dark:text-gray-400"
-              }
+              className={activeTab === "personal" ? "border-b-2" : "dark:text-gray-400"}
+              style={activeTab === "personal" ? { borderColor: getMtkRgba(1), color: getMtkRgba(1) } : {}}
             >
               {t("profile.personalInfo") || "Şəxsi məlumatlar"}
             </Tab>
             <Tab
               value="password"
               onClick={() => handleTabChange("password")}
-              className={
-                activeTab === "password"
-                  ? "border-b-2 border-red-600 text-red-600 dark:text-red-400"
-                  : "dark:text-gray-400"
-              }
+              className={activeTab === "password" ? "border-b-2" : "dark:text-gray-400"}
+              style={activeTab === "password" ? { borderColor: getMtkRgba(1), color: getMtkRgba(1) } : {}}
             >
               {t("profile.password") || "Şifrəm"}
             </Tab>
@@ -290,7 +286,7 @@ export function ProfileTabs({ user, refreshUser, messages }) {
                     color="red"
                     onClick={handleSavePersonalInfo}
                     disabled={loading}
-                    className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-xs py-1.5 px-4 disabled:opacity-50"
+                    className="text-white text-xs py-1.5 px-4 disabled:opacity-50" style={{ background: getMtkRgba(0.9) }}
                     size="sm"
                   >
                     {loading ? (t("profile.saving") || "Yadda saxlanır...") : (t("profile.save") || "Yadda saxla")}
@@ -369,7 +365,7 @@ export function ProfileTabs({ user, refreshUser, messages }) {
                     color="red"
                     onClick={handleSavePassword}
                     disabled={loading}
-                    className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-xs py-1.5 px-4 disabled:opacity-50"
+                    className="text-white text-xs py-1.5 px-4 disabled:opacity-50" style={{ background: getMtkRgba(0.9) }}
                     size="sm"
                   >
                     {loading ? (t("profile.saving") || "Yadda saxlanır...") : (t("profile.save") || "Yadda saxla")}

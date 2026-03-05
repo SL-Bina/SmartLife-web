@@ -3,9 +3,11 @@ import { Typography, IconButton } from "@material-tailwind/react";
 import { UserIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearSelectedResident } from "@/store/slices/residentSlice";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ResidentHeader() {
   const dispatch = useAppDispatch();
+  const { getRgba, getActiveGradient } = useMtkColor();
   const selectedResident = useAppSelector((state) => state.resident.selectedResident);
   const selectedResidentId = useAppSelector((state) => state.resident.selectedResidentId);
 
@@ -16,8 +18,8 @@ export function ResidentHeader() {
 
   return (
     <div 
-      className="relative w-full overflow-hidden rounded-xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 mt-4 sm:mt-3 md:mt-4"
-      style={{ position: 'relative', zIndex: 0 }}
+      className="relative w-full overflow-hidden rounded-xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 mt-4 sm:mt-3 md:mt-4"
+      style={{ background: getActiveGradient(0.9, 0.7), border: `1px solid ${getRgba(0.3)}`, position: 'relative', zIndex: 0 }}
     >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{

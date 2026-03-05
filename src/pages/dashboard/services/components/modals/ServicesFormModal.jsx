@@ -11,9 +11,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { InformationCircleIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { useServicesLookups } from "../../hooks/useServiceLooksup";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 
 export function ServicesFormModal({ open, onClose, title, formData, onFieldChange, onSave, isEdit = false, saving = false }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const { mtks, complexes, loading, error, setMtk, setComplex } =
     useServicesLookups(open, formData, onFieldChange);
@@ -26,7 +28,7 @@ export function ServicesFormModal({ open, onClose, title, formData, onFieldChang
       open={open}
       handler={onClose}
       size="lg"
-      className="dark:bg-gray-900 border border-red-600 dark:border-gray-700"
+      className="dark:bg-gray-900 border dark:border-gray-700" style={{ borderColor: getMtkRgba(0.7) }}
       dismiss={{ enabled: false }}
     >
       <DialogHeader className="dark:bg-gray-800 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-4">

@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { NotificationsViewModal } from "./components/NotificationsViewModal";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 // Mock data - şəkillərdə göründüyü kimi
 const initialNotifications = [
@@ -104,6 +105,7 @@ const naturalSort = (a, b) => {
 const ITEMS_PER_PAGE = 5;
 
 export function Notifications() {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [notifications] = useState(initialNotifications);
   const [sortConfig, setSortConfig] = useState({ column: "date", direction: "desc" });
@@ -173,12 +175,12 @@ export function Notifications() {
   return (
     <div className="">
       {/* Səhifə başlığı */}
-      <div className="w-full bg-black dark:bg-gray-800 my-4 p-4 rounded-lg shadow-lg mb-6 border border-red-600 dark:border-gray-700">
+      <div className="w-full bg-gray-900 dark:bg-gray-800 my-4 p-4 rounded-lg shadow-lg mb-6 border dark:border-gray-700" style={{ border: `1px solid ${getMtkRgba(0.7)}` }}>
         <h3 className="text-white font-bold">{t("notifications.pageTitle") || "Bildirişlər"}</h3>
       </div>
 
       {/* Table Card */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardBody className="px-0 pt-0 pb-2 dark:bg-gray-800">
           {sortedNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 px-4 text-center">

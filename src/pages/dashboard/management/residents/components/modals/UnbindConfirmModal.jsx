@@ -13,6 +13,7 @@ import {
   HomeIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 function InfoRow({ icon: Icon, label, value, accent = false }) {
   if (!value) return null;
@@ -34,6 +35,7 @@ function InfoRow({ icon: Icon, label, value, accent = false }) {
 }
 
 export function UnbindConfirmModal({ open, onClose, onConfirm, labels = {}, loading = false }) {
+  const { getActiveGradient } = useMtkColor();
   if (!open) return null;
 
   return (
@@ -42,9 +44,9 @@ export function UnbindConfirmModal({ open, onClose, onConfirm, labels = {}, load
       handler={onClose}
       size="sm"
       dismiss={{ enabled: false }}
-      className="dark:bg-gray-800 border border-red-200 dark:border-red-900/30"
+      className="dark:bg-gray-800 border" style={{ borderColor: getMtkRgba(0.35) }}
     >
-      <DialogHeader className="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-t-xl pb-4">
+      <DialogHeader className="text-white rounded-t-xl pb-4" style={{ background: getActiveGradient(0.9, 0.7) }}>
         <div className="flex justify-between items-center w-full">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white/20 rounded-lg">

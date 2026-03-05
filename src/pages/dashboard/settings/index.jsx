@@ -26,6 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useMaterialTailwindController, setDarkMode, setSidenavType, setSidenavColor } from "@/store/exports";
 import { useNavigate } from "react-router-dom";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const Settings = () => {
   const { t, i18n } = useTranslation();
@@ -33,6 +34,7 @@ const Settings = () => {
   const [controller, dispatch] = useMaterialTailwindController();
   const { darkMode } = controller;
   const [activeTab, setActiveTab] = useState("general");
+  const { getRgba: getMtkRgba } = useMtkColor();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -127,17 +129,15 @@ const Settings = () => {
             <TabsHeader
               className="rounded-none border-b border-blue-gray-50 bg-transparent p-0 dark:border-gray-700"
               indicatorProps={{
-                className: "bg-transparent border-b-2 border-red-600 shadow-none rounded-none",
+                className: "bg-transparent border-b-2 shadow-none rounded-none",
+                style: { borderColor: getMtkRgba(1) },
               }}
             >
               <Tab
                 value="general"
                 onClick={() => handleTabChange("general")}
-                className={`${
-                  activeTab === "general"
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
+                className={activeTab === "general" ? "" : "text-gray-600 dark:text-gray-400"}
+                style={activeTab === "general" ? { color: getMtkRgba(1) } : {}}
               >
                 <div className="flex items-center gap-2">
                   <GlobeAltIcon className="h-5 w-5" />
@@ -147,11 +147,8 @@ const Settings = () => {
               <Tab
                 value="notifications"
                 onClick={() => handleTabChange("notifications")}
-                className={`${
-                  activeTab === "notifications"
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
+                className={activeTab === "notifications" ? "" : "text-gray-600 dark:text-gray-400"}
+                style={activeTab === "notifications" ? { color: getMtkRgba(1) } : {}}
               >
                 <div className="flex items-center gap-2">
                   <BellIcon className="h-5 w-5" />
@@ -161,11 +158,8 @@ const Settings = () => {
               <Tab
                 value="security"
                 onClick={() => handleTabChange("security")}
-                className={`${
-                  activeTab === "security"
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
+                className={activeTab === "security" ? "" : "text-gray-600 dark:text-gray-400"}
+                style={activeTab === "security" ? { color: getMtkRgba(1) } : {}}
               >
                 <div className="flex items-center gap-2">
                   <ShieldCheckIcon className="h-5 w-5" />
@@ -182,8 +176,8 @@ const Settings = () => {
                     <CardBody className="p-4 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <LanguageIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                          <div className="p-2 rounded-lg" style={{ backgroundColor: getMtkRgba(0.1) }}>
+                            <LanguageIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                           </div>
                           <div>
                             <Typography variant="h6" color="blue-gray" className="mb-1 dark:text-gray-300">
@@ -218,11 +212,11 @@ const Settings = () => {
                     <CardBody className="p-4 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                          <div className="p-2 rounded-lg" style={{ backgroundColor: getMtkRgba(0.1) }}>
                             {darkMode ? (
-                              <MoonIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                              <MoonIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                             ) : (
-                              <SunIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                              <SunIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                             )}
                           </div>
                           <div>
@@ -257,8 +251,8 @@ const Settings = () => {
                     <CardBody className="p-4 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <EnvelopeIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                          <div className="p-2 rounded-lg" style={{ backgroundColor: getMtkRgba(0.1) }}>
+                            <EnvelopeIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                           </div>
                           <div>
                             <Typography variant="h6" color="blue-gray" className="mb-1 dark:text-gray-300">
@@ -283,8 +277,8 @@ const Settings = () => {
                     <CardBody className="p-4 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <BellIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                          <div className="p-2 rounded-lg" style={{ backgroundColor: getMtkRgba(0.1) }}>
+                            <BellIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                           </div>
                           <div>
                             <Typography variant="h6" color="blue-gray" className="mb-1 dark:text-gray-300">
@@ -309,8 +303,8 @@ const Settings = () => {
                     <CardBody className="p-4 dark:bg-gray-800">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                            <PhoneIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                          <div className="p-2 rounded-lg" style={{ backgroundColor: getMtkRgba(0.1) }}>
+                            <PhoneIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                           </div>
                           <div>
                             <Typography variant="h6" color="blue-gray" className="mb-1 dark:text-gray-300">
@@ -348,8 +342,8 @@ const Settings = () => {
                   <Card className="border border-gray-200 dark:border-gray-700 shadow-none dark:bg-gray-800">
                     <CardBody className="p-6 dark:bg-gray-800">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                          <ShieldCheckIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                        <div className="p-2 rounded-lg" style={{ backgroundColor: getMtkRgba(0.1) }}>
+                          <ShieldCheckIcon className="h-6 w-6" style={{ color: getMtkRgba(1) }} />
                         </div>
                         <div>
                           <Typography variant="h6" color="blue-gray" className="mb-1 dark:text-gray-300">
@@ -364,7 +358,7 @@ const Settings = () => {
                         <Button
                           variant="outlined"
                           color="red"
-                          className="border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          className="hover:bg-opacity-10 dark:hover:bg-opacity-20" style={{ borderColor: getMtkRgba(1), color: getMtkRgba(1) }}
                           onClick={() => navigate("/dashboard/profile")}
                         >
                           {t("settings.goToProfile") || "Profili Dəyişdir"}

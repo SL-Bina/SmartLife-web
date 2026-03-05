@@ -3,17 +3,22 @@ import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { SidenavSection } from "./SidenavSection";
 import { SidenavMenuItem } from "./SidenavMenuItem";
+import { useComplexColor } from "@/hooks/useComplexColor";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function SidenavMenu({ routes, openMenus, setOpenMenus, collapsed = false, flatMenu = false, expandAll = false, isLowHeight = false }) {
   const location = useLocation();
-  const selectedProperty = useSelector((state) => state.property.selectedProperty);
+  const isResident = useSelector((state) => state.auth.user?.is_resident === true);
 
-  // color code from selected property/complex
-  const colorCode =
-    selectedProperty?.sub_data?.complex?.meta?.color_code ||
-    selectedProperty?.sub_data?.mtk?.meta?.color_code ||
-    null;
-  const mtkColorCode = colorCode; // alias for existing logic
+  // Resident → complex color, Dashboard → MTK color
+  const RESIDENT_DEFAULT = "#3b82f6";
+  const DASHBOARD_DEFAULT = "#dc2626";
+  const { color: residentColor } = useComplexColor();
+  const { colorCode: mtkColor } = useMtkColor();
+
+  const rawColor = isResident ? residentColor : mtkColor;
+  const defaultColor = isResident ? RESIDENT_DEFAULT : DASHBOARD_DEFAULT;
+  const mtkColorCode = rawColor && rawColor !== defaultColor ? rawColor : null;
 
   React.useEffect(() => {
     if (expandAll) {

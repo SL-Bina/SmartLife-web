@@ -2,15 +2,17 @@ import React from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Typography } from "@material-tailwind/react";
 import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ExpenseTypesDeleteModal({ open, onClose, expenseType, onConfirm }) {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
 
   if (!open || !expenseType) return null;
 
   return (
     <Dialog open={open} handler={onClose} size="md" className="dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl" dismiss={{ enabled: false }}>
-      <DialogHeader className="bg-gradient-to-r from-red-50 to-red-100 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-between rounded-t-lg">
+      <DialogHeader className="dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-700 pb-4 flex items-center justify-between rounded-t-lg" style={{ background: getActiveGradient(0.9, 0.7) }}>
         <div className="flex items-center gap-3">
           <div className="p-2 bg-red-500 rounded-lg">
             <TrashIcon className="h-5 w-5 text-white" />

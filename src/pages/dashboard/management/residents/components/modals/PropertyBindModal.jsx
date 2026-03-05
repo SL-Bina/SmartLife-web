@@ -12,6 +12,7 @@ import DynamicToast from "@/components/DynamicToast";
 import { BindConfirmModal } from "./BindConfirmModal";
 import { UnbindConfirmModal } from "./UnbindConfirmModal";
 import residentAPI from "../../../residents/api";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function PropertyBindModal({
   open,
@@ -22,6 +23,7 @@ export function PropertyBindModal({
   onSuccess
 }) {
 
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
   const [mtkId, setMtkId] = useState(null);
   const [complexId, setComplexId] = useState(null);
   const [buildingId, setBuildingId] = useState(null);
@@ -421,7 +423,7 @@ export function PropertyBindModal({
                             color="red"
                             onClick={() => setUnbindTarget(p)}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                            className="flex items-center gap-2 hover:hover:" style={{ background: getActiveGradient(0.9, 0.7) }}
                           >
                             <TrashIcon className="h-4 w-4" />
                             Bağlantını sil

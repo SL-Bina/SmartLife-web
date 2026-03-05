@@ -6,12 +6,14 @@ import { LanguageSelector } from "./LanguageSelector";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { UserMenu } from "./UserMenu";
 import PropertySelectorMenu from "./PropertySelectorMenu";
+import MtkSelectorMenu from "./MtkSelectorMenu";
+import { useSelector } from "react-redux";
 
 export function MobileNavbar({ pageTitle, navbarHoverEffects }) {
   const [controller, dispatch] = useMaterialTailwindController();
   const { openSidenav } = controller;
-  const mtk = null;
-  const mtkColorCode = null;
+  const mtk = useSelector((state) => state.mtk.selectedMtk);
+  const mtkColorCode = useSelector((state) => state.mtk.storedColorCode) || mtk?.meta?.color_code || null;
 
   const handleMenuClick = (e) => {
     e.preventDefault();
@@ -83,6 +85,9 @@ export function MobileNavbar({ pageTitle, navbarHoverEffects }) {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        <div className="flex items-center">
+          <MtkSelectorMenu isMobile={true} />
+        </div>
         <div className="flex items-center">
           <PropertySelectorMenu isMobile={true} />
         </div>

@@ -2,12 +2,14 @@ import React from "react";
 import { Card, CardBody, Typography, Input, Button } from "@material-tailwind/react";
 import { ArrowDownTrayIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function KPIActions({ startDate, endDate, onStartDateChange, onEndDateChange, onSearchClick, onExcelExport, onPDFExport }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   return (
-    <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 mb-6">
+    <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 mb-6" style={{ borderColor: getMtkRgba(0.7) }}>
       <CardBody className="p-6 dark:bg-gray-800">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1 w-full lg:w-auto">

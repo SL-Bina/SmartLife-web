@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const formatNumber = (num) => {
   return num.toLocaleString("az-AZ", {
@@ -10,10 +11,11 @@ const formatNumber = (num) => {
 };
 
 export function IncomeExpensesCard({ incomeData, expenseData, currency }) {
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
   const { t } = useTranslation();
 
   return (
-    <Card className="border border-red-600 dark:border-gray-700 shadow-lg dark:bg-gray-800 bg-white">
+    <Card className="border dark:border-gray-700 shadow-lg dark:bg-gray-800 bg-white">
       <CardBody className="p-4 dark:bg-gray-800">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           {/* Income Column */}
@@ -205,11 +207,11 @@ export function IncomeExpensesCard({ incomeData, expenseData, currency }) {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 p-3 rounded-lg border-2 border-red-300 dark:border-red-700 shadow-sm">
+              <div className="dark:/30 dark:/30 p-3 rounded-lg border-2 shadow-sm" style={{ background: getActiveGradient(0.9, 0.7), borderColor: getMtkRgba(0.5) }}>
                 <Typography variant="small" color="blue-gray" className="font-semibold mb-1 dark:text-gray-300">
                   {t("reports.expenses.total")}
                 </Typography>
-                <Typography variant="h6" color="red" className="font-bold dark:text-red-300">
+                <Typography variant="h6" className="font-bold dark:text-white" style={{ color: getMtkRgba(1) }}>
                   {formatNumber(expenseData.total)} {currency}
                 </Typography>
               </div>

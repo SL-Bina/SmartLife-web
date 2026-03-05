@@ -8,6 +8,8 @@ import { getFirstActivePath } from "@/utils/getFirstActivePath";
 
 import { useSelector } from "react-redux";
 import { useAuth } from "@/store/hooks/useAuth";
+import { useComplexColor } from "@/hooks/useComplexColor";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function Sidenav({ brandImg, brandName, routes }) {
   const [controller, actions] = useMaterialTailwindController();
@@ -21,8 +23,15 @@ export function Sidenav({ brandImg, brandName, routes }) {
     if (complexName) displayName = complexName;
   }
 
-  const colorCode = null;
-  const mtkColorCode = null;
+  // Resident → complex color, Dashboard → MTK color
+  const RESIDENT_DEFAULT = "#3b82f6";
+  const DASHBOARD_DEFAULT = "#dc2626";
+  const { color: residentColor } = useComplexColor();
+  const { colorCode: mtkColor } = useMtkColor();
+
+  const rawColor = user?.is_resident ? residentColor : mtkColor;
+  const defaultColor = user?.is_resident ? RESIDENT_DEFAULT : DASHBOARD_DEFAULT;
+  const mtkColorCode = rawColor && rawColor !== defaultColor ? rawColor : null;
 
   const filteredRoutes = routes;
   const homePath = getFirstActivePath(filteredRoutes);

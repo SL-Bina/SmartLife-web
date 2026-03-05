@@ -14,14 +14,16 @@ import {
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ProfileSidebar({ user }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   return (
     <div className="space-y-3 flex flex-col min-h-0">
       {/* Top profile card */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-lg dark:bg-gray-800 overflow-hidden flex-1 min-h-0 flex flex-col">
+      <Card className="border dark:border-gray-700 shadow-lg dark:bg-gray-800 overflow-hidden flex-1 min-h-0 flex flex-col">
         <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 p-4 flex-1 min-h-0">
           <div className="absolute inset-0 opacity-20">
             <img
@@ -73,7 +75,7 @@ export function ProfileSidebar({ user }) {
       </Card>
 
       {/* Contact Info */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 min-h-0 flex flex-col">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 flex-1 min-h-0 flex flex-col">
         <CardBody className="p-3 dark:bg-gray-800 flex-1 flex flex-col min-h-0">
           <Typography variant="h6" className="mb-2 font-bold text-blue-gray-900 dark:text-white text-xs flex-shrink-0">
             {t("profile.contactInfo") || "ƏLAQƏ MƏLUMATLARI"}

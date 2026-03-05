@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Input, Typography } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function PaymentHistoryFilterModal({ open, onClose, filters, onFilterChange, onApply, onClear }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [buildings, setBuildings] = useState([]);
   const [blocks, setBlocks] = useState([]);
@@ -57,7 +59,7 @@ export function PaymentHistoryFilterModal({ open, onClose, filters, onFilterChan
   if (!open) return null;
 
   return (
-    <Dialog open={open} handler={onClose} size="lg" className="dark:bg-gray-800 border border-red-600 dark:border-gray-700" dismiss={{ enabled: false }}>
+    <Dialog open={open} handler={onClose} size="lg" className="dark:bg-gray-800 border dark:border-gray-700" dismiss={{ enabled: false }}>
       <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center justify-between">
         <Typography variant="h5" className="font-bold">
           {t("paymentHistory.filter.title") || "Axtarış"}

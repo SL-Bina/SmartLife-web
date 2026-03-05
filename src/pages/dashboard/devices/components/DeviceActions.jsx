@@ -30,9 +30,7 @@ export function DeviceActions({
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 flex-wrap">
-      {/* Left: search inputs */}
       <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
-        {/* Name search */}
         <div className="relative w-full sm:w-56">
           <Input
             label={t("devices.filter.name") || "Ad axtar..."}
@@ -55,7 +53,6 @@ export function DeviceActions({
           />
         </div>
 
-        {/* Status filter */}
         <div className="w-full sm:w-40">
           <Select
             label={t("devices.filter.status") || "Status"}
@@ -68,8 +65,6 @@ export function DeviceActions({
             <Option value="Offline">{t("devices.filter.offline") || "Offline"}</Option>
           </Select>
         </div>
-
-        {/* Total count */}
         {total > 0 && (
           <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs hidden sm:block">
             {t("devices.table.total") || "Cəm"}: <b>{total}</b>
@@ -77,7 +72,6 @@ export function DeviceActions({
         )}
       </div>
 
-      {/* Right: create button */}
       <Button
         size="sm"
         color="blue"

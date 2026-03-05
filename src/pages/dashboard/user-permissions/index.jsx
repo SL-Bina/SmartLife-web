@@ -27,6 +27,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { permissionsAPI } from "./api";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const rightsData = [
   { id: 1, name: "Admin", status: "Aktiv" },
@@ -186,6 +187,7 @@ const getRightPermissions = (rightId) => {
 };
 
 const UserPermissionsPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -316,7 +318,7 @@ const UserPermissionsPage = () => {
   return (
     <div className="h-full flex flex-col">
       {/* Section title bar */}
-      <div className="w-full bg-black dark:bg-gray-800 my-2 sm:my-3 lg:my-4 p-3 sm:p-4 rounded-lg shadow-lg mb-3 sm:mb-4 lg:mb-5 border border-red-600 dark:border-gray-700 flex-shrink-0">
+      <div className="w-full bg-black dark:bg-gray-800 my-2 sm:my-3 lg:my-4 p-3 sm:p-4 rounded-lg shadow-lg mb-3 sm:mb-4 lg:mb-5 border dark:border-gray-700 flex-shrink-0">
         <div className="flex flex-col gap-3 sm:gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -408,7 +410,7 @@ const UserPermissionsPage = () => {
           </Typography>
         </div>
       ) : (
-        <Card className="border border-red-600 dark:border-gray-700 shadow-lg dark:bg-gray-800 flex flex-col flex-1 min-h-0">
+        <Card className="border dark:border-gray-700 shadow-lg dark:bg-gray-800 flex flex-col flex-1 min-h-0">
           <CardHeader
             floated={false}
             shadow={false}

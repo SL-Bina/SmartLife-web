@@ -1,11 +1,13 @@
 import React from "react";
 import { IconButton, Menu, MenuHandler, MenuList, MenuItem } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 import ReactCountryFlag from "react-country-flag";
 import { languages } from "../utils/languages";
 
 export function LanguageSelector({ isMobile = false }) {
   const { i18n } = useTranslation();
+  const { getRgba: getMtkRgba } = useMtkColor();
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -40,7 +42,8 @@ export function LanguageSelector({ isMobile = false }) {
           <MenuItem
             key={lng.code}
             onClick={() => changeLanguage(lng.code)}
-            className={`dark:text-gray-300 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 flex items-center gap-3 rounded-lg ${i18n.language === lng.code ? "bg-gradient-to-r from-red-600/10 to-red-500/5" : ""}`}
+            className={`dark:text-gray-300 dark:hover:bg-gray-800/50 hover:bg-gray-100/50 flex items-center gap-3 rounded-lg`}
+          style={i18n.language === lng.code ? { background: `linear-gradient(to right, ${getMtkRgba(0.1)}, ${getMtkRgba(0.05)})` } : {}}
           >
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${i18n.language === lng.code ? "bg-red-600/20 dark:bg-red-600/30" : "bg-gray-200/50 dark:bg-gray-700/50"}`}>
               <ReactCountryFlag

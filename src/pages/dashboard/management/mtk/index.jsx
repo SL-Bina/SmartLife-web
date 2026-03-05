@@ -159,11 +159,6 @@ export default function MtkPage() {
     }
   };
 
-  const handleSelect = (item) => {
-    dispatch(setSelectedMtk({ id: item.id, mtk: item }));
-    showToast("success", `"${item.name}" MTK seçildi`, "Uğurlu");
-  };
-
   const handleDelete = (item) => {
     setItemToDelete(item);
     setDeleteModalOpen(true);
@@ -234,8 +229,6 @@ export default function MtkPage() {
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        onSelect={handleSelect}
-        selectedMtkId={selectedMtkId}
       />
 
       {lastPage > 1 && (

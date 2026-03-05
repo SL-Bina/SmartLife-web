@@ -1,6 +1,7 @@
 import React from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Typography } from "@material-tailwind/react";
 import { XMarkIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function DeleteConfirmModal({ 
   open, 
@@ -23,7 +24,7 @@ export function DeleteConfirmModal({
       open={open} 
       handler={onClose} 
       size="sm" 
-      className="dark:bg-gray-800 border border-red-200 dark:border-red-900/30"
+      className="dark:bg-gray-800 border" style={{ borderColor: getMtkRgba(0.35) }}
       dismiss={{ enabled: false }}
     >
       <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3 flex items-center justify-between">

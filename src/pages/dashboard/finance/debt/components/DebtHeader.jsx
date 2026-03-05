@@ -2,11 +2,13 @@ import React from "react";
 import { Typography } from "@material-tailwind/react";
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function DebtHeader() {
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
   const { t } = useTranslation();
-  const gradientStyle = { background: `linear-gradient(to right, rgba(220,38,38,0.9), rgba(220,38,38,0.7), rgba(220,38,38,0.9))` };
-  const borderColor = "rgba(220,38,38,0.3)";
+  const gradientStyle = { background: getActiveGradient(0.9, 0.7) };
+  const borderColor = getMtkRgba(0.3);
 
   return (
     <div
@@ -20,7 +22,7 @@ export function DebtHeader() {
         <div className="flex-shrink-0">
           <div
             className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30 dark:border-gray-600/30"
-            style={{ backgroundColor: "rgba(220,38,38,0.2)" }}
+            style={{ backgroundColor: getMtkRgba(0.2) }}
           >
             <CurrencyDollarIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
           </div>

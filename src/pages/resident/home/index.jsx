@@ -81,18 +81,17 @@ const ResidentHomePage = () => {
   const fetchAll = async () => {
     setLoading(true);
     const params = selectedPropertyId ? { property_id: selectedPropertyId } : {};
-    const [, invRes, notifRes, tickRes, svcRes] = await Promise.allSettled([
-      new Promise((r) => setTimeout(r, 1400)),
+    const [invRes, notifRes, tickRes, svcRes] = await Promise.allSettled([
       (selectedPropertyId ? residentInvoicesAPI.getByProperty(selectedPropertyId) : residentInvoicesAPI.getAll()).catch(() => null),
       residentNotificationsAPI.getAll(params).catch(() => null),
       residentTicketsAPI.getAll(params).catch(() => null),
       myServicesAPI.getAll(params).catch(() => null),
     ]);
 
-    const invList   = invRes.value?.data?.data?.data   ?? invRes.value?.data?.data   ?? invRes.value?.data   ?? [];
-    const notifList = notifRes.value?.data?.data?.data ?? notifRes.value?.data?.data ?? notifRes.value?.data ?? [];
-    const tickList  = tickRes.value?.data?.data?.data  ?? tickRes.value?.data?.data  ?? tickRes.value?.data  ?? [];
-    const svcList   = svcRes.value?.data?.data?.data   ?? svcRes.value?.data?.data   ?? svcRes.value?.data   ?? [];
+    const invList   = invRes?.value?.data?.data?.data   ?? invRes?.value?.data?.data   ?? invRes?.value?.data   ?? [];
+    const notifList = notifRes?.value?.data?.data?.data ?? notifRes?.value?.data?.data ?? notifRes?.value?.data ?? [];
+    const tickList  = tickRes?.value?.data?.data?.data  ?? tickRes?.value?.data?.data  ?? tickRes?.value?.data  ?? [];
+    const svcList   = svcRes?.value?.data?.data?.data   ?? svcRes?.value?.data?.data   ?? svcRes?.value?.data   ?? [];
 
     setInvoices(Array.isArray(invList) ? invList : []);
     setNotifications(Array.isArray(notifList) ? notifList : []);
@@ -121,30 +120,45 @@ const ResidentHomePage = () => {
   const complexName = selectedProperty?.sub_data?.complex?.name || selectedProperty?.complex?.name || "";
   const mtkName     = selectedProperty?.sub_data?.mtk?.name     || selectedProperty?.mtk?.name     || "";
 
+  const Sk = ({ className }) => (
+    <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl ${className}`} />
+  );
+
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5" style={{ position: "relative", zIndex: 0 }}>
-        <div
-          className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
-          style={{ background: `linear-gradient(135deg, ${getRgba(0.9)}, ${getRgba(0.6)})` }}
-        >
-          <HomeIcon className="h-10 w-10 text-white" />
-        </div>
-        <div className="text-center space-y-1">
-          <Typography variant="h5" className="font-bold text-gray-800 dark:text-white">
-            {complexName || propName || "Sakin Paneli"}
-          </Typography>
-          <Typography variant="small" className="text-gray-500 dark:text-gray-400">Yüklənir...</Typography>
-        </div>
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-2 h-2 rounded-full animate-bounce"
-              style={{ backgroundColor: getRgba(0.7), animationDelay: `${i * 0.15}s` }}
-            />
+      <div className="space-y-5">
+        {/* Header banner skeleton */}
+        <Sk className="h-24" />
+
+        {/* Stories skeleton */}
+        <div className="flex gap-3 px-1 overflow-hidden">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex-shrink-0 flex flex-col items-center gap-1.5">
+              <Sk className="w-14 h-14 !rounded-full" />
+              <Sk className="h-2 w-10 !rounded" />
+            </div>
           ))}
         </div>
+
+        {/* Property card skeleton */}
+        <Sk className="h-36" />
+
+        {/* Stats cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {[...Array(4)].map((_, i) => <Sk key={i} className="h-28" />)}
+        </div>
+
+        {/* 2-col grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <Sk className="h-72" />
+          <div className="flex flex-col gap-5">
+            <Sk className="h-44" />
+            <Sk className="h-44" />
+          </div>
+        </div>
+
+        {/* Quick actions skeleton */}
+        <Sk className="h-32" />
       </div>
     );
   }

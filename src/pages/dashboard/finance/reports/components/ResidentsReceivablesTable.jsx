@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 const formatNumber = (num) => {
   return num.toLocaleString("az-AZ", {
@@ -10,10 +11,11 @@ const formatNumber = (num) => {
 };
 
 export function ResidentsReceivablesTable({ residentsReceivablesData, currency }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   return (
-    <Card className="border border-red-600 dark:border-gray-700 shadow-lg dark:bg-gray-800 bg-white">
+    <Card className="border dark:border-gray-700 shadow-lg dark:bg-gray-800 bg-white">
       <CardBody className="p-4 dark:bg-gray-800">
         <Typography variant="h6" color="blue-gray" className="mb-3 font-bold dark:text-white pb-2 border-b border-gray-200 dark:border-gray-700">
           {t("reports.residentsReceivables.title")}

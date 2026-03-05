@@ -22,6 +22,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 // Mock data - real app-də API-dən gələcək
 const evaluationData = [
@@ -120,6 +121,7 @@ const evaluationData = [
 const ITEMS_PER_PAGE = 10;
 
 const ApplicationsEvaluationPage = () => {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -206,7 +208,7 @@ const ApplicationsEvaluationPage = () => {
   return (
     <div className="">
       {/* Section title bar */}
-      <div className="w-full bg-black dark:bg-gray-800 my-4 p-4 rounded-lg shadow-lg mb-6 border border-red-600 dark:border-gray-700">
+      <div className="w-full bg-black dark:bg-gray-800 my-4 p-4 rounded-lg shadow-lg mb-6 border dark:border-gray-700">
         <div className="flex items-center justify-between">
           <Typography variant="h5" className="text-white font-bold">
             {t("applications.evaluation.pageTitle")}
@@ -224,7 +226,7 @@ const ApplicationsEvaluationPage = () => {
       </div>
 
       {/* Search Modal */}
-      <Dialog open={searchOpen} handler={setSearchOpen} size="md" className="dark:bg-gray-800 border border-red-600 dark:border-gray-700">
+      <Dialog open={searchOpen} handler={setSearchOpen} size="md" className="dark:bg-gray-800 border dark:border-gray-700">
         <DialogHeader className="dark:text-white">{t("applications.evaluation.searchModal.title")}</DialogHeader>
         <DialogBody divider className="space-y-4 dark:bg-gray-800">
           <div>
@@ -346,7 +348,7 @@ const ApplicationsEvaluationPage = () => {
 
       {/* Details Modal */}
       {selectedEvaluation && (
-        <Dialog open={detailsOpen} handler={handleDetailsClose} size="xl" className="dark:bg-gray-800 border border-red-600 dark:border-gray-700">
+        <Dialog open={detailsOpen} handler={handleDetailsClose} size="xl" className="dark:bg-gray-800 border dark:border-gray-700">
           <DialogHeader className="dark:text-white">{t("applications.evaluation.detailsModal.title")}</DialogHeader>
           <DialogBody divider className="space-y-6 dark:bg-gray-800">
             {/* Evaluation ID */}
@@ -444,7 +446,7 @@ const ApplicationsEvaluationPage = () => {
       )}
 
       {/* Evaluation Table */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-sm dark:bg-gray-800 ">
+      <Card className="border dark:border-gray-700 shadow-sm dark:bg-gray-800 ">
         <CardBody className="p-0 dark:bg-gray-800">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-10">

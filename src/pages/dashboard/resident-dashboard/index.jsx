@@ -16,8 +16,10 @@ import {
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function ResidentDashboard() {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -89,7 +91,7 @@ export function ResidentDashboard() {
   return (
     <div className="h-full flex flex-col">
       {/* Section title bar */}
-      <div className="w-full bg-black dark:bg-gray-800 my-2 sm:my-3 lg:my-4 p-3 sm:p-4 rounded-lg shadow-lg mb-3 sm:mb-4 lg:mb-5 border border-red-600 dark:border-gray-700 flex-shrink-0">
+      <div className="w-full bg-gray-900 dark:bg-gray-800 my-2 sm:my-3 lg:my-4 p-3 sm:p-4 rounded-lg shadow-lg mb-3 sm:mb-4 lg:mb-5 border dark:border-gray-700 flex-shrink-0" style={{ border: `1px solid ${getMtkRgba(0.7)}` }}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <Typography variant="h5" className="text-white font-bold text-lg sm:text-xl">
@@ -107,7 +109,7 @@ export function ResidentDashboard() {
         {statCards.map((stat, index) => (
           <Card
             key={index}
-            className="border border-red-600 dark:border-gray-700 shadow-lg dark:bg-gray-800 cursor-pointer hover:shadow-xl transition-shadow"
+            className="border dark:border-gray-700 shadow-lg dark:bg-gray-800 cursor-pointer hover:shadow-xl transition-shadow" style={{ borderColor: getMtkRgba(0.7) }}
             onClick={stat.onClick}
           >
             <CardBody className="p-4 sm:p-6 dark:bg-gray-800">
@@ -130,7 +132,7 @@ export function ResidentDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="border border-red-600 dark:border-gray-700 shadow-lg dark:bg-gray-800 mt-4 sm:mt-6">
+      <Card className="border dark:border-gray-700 shadow-lg dark:bg-gray-800 mt-4 sm:mt-6" style={{ borderColor: getMtkRgba(0.7) }}>
         <CardHeader
           floated={false}
           shadow={false}

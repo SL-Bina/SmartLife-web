@@ -1,14 +1,16 @@
 import React from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Typography, Chip } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function PaymentHistoryViewModal({ open, onClose, payment }) {
+  const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
   if (!open || !payment) return null;
 
   return (
-    <Dialog open={open} handler={onClose} size="lg" className="dark:bg-gray-800 border border-red-600 dark:border-gray-700" dismiss={{ enabled: false }}>
+    <Dialog open={open} handler={onClose} size="lg" className="dark:bg-gray-800 border dark:border-gray-700" dismiss={{ enabled: false }}>
       <DialogHeader className="dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
         <Typography variant="h5" className="font-bold">
           {t("paymentHistory.view.title")}
