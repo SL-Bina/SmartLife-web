@@ -72,6 +72,7 @@ function MtkSelectorMenu({ isMobile = false }) {
   const SwitchingOverlay = switching
     ? ReactDOM.createPortal(
         <div
+          className="mtk-overlay-enter"
           style={{
             position: "fixed",
             inset: 0,
@@ -82,7 +83,6 @@ function MtkSelectorMenu({ isMobile = false }) {
             justifyContent: "center",
             background: `linear-gradient(135deg, ${hexToRgba(switchColor, 0.96)}, ${hexToRgba(switchColor, 0.82)})`,
             backdropFilter: "blur(12px)",
-            animation: "mtk-fade-in 0.3s ease",
           }}
         >
           <style>{`
@@ -116,10 +116,8 @@ function MtkSelectorMenu({ isMobile = false }) {
             {/* Rotating ring */}
             <svg
               viewBox="0 0 96 96"
-              style={{
-                position: "absolute", inset: 0,
-                animation: "mtk-spin-ring 1.1s linear infinite",
-              }}
+              className="mtk-spin-ring"
+              style={{ position: "absolute", inset: 0 }}
             >
               <circle
                 cx="48" cy="48" r="44"
@@ -139,13 +137,15 @@ function MtkSelectorMenu({ isMobile = false }) {
             </svg>
 
             {/* Center icon */}
-            <div style={{
-              position: "absolute", inset: "12px",
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.18)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              animation: "mtk-pulse-logo 1.4s ease-in-out infinite",
-            }}>
+            <div
+              className="mtk-pulse-logo"
+              style={{
+                position: "absolute", inset: "12px",
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.18)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+            >
               <BuildingLibraryIcon style={{ width: "36px", height: "36px", color: "#fff" }} />
             </div>
           </div>

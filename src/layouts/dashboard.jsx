@@ -227,7 +227,11 @@ export function Dashboard() {
 
   const hasToken = typeof document !== 'undefined' && document.cookie.includes('smartlife_token=');
 
-  if (!isInitialized || !residentReady) {
+  // Only block rendering while: (1) auth hasn't resolved yet, OR
+  // (2) user is a resident and their properties haven't loaded yet.
+  // Without this guard, a fresh browser with no cookie (user === null) would
+  // leave residentReady=false forever and the loading spinner would never clear.
+  if (!isInitialized || (user?.is_resident === true && !residentReady)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-gray-50/50 dark:bg-black">
         <div className="text-center">
