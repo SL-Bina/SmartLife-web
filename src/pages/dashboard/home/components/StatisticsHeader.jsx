@@ -10,6 +10,7 @@ export function StatisticsHeader() {
       icon={ChartBarIcon}
       title={t("statistics.pageTitle") || "Dashboard"}
       subtitle={t("statistics.pageSubtitle") || "Ödənişlər, işçi performansı, müraciətlər və şöbə statistikaları"}
+      className="mb-6"
     />
   );
 }
