@@ -28,13 +28,13 @@ import { Home, Notifications, KPI, ApplicationsListPage, ApplicationsEvaluationP
 import { SignIn } from "@/pages/auth";
 import Profile from "./pages/dashboard/profile";
 import Settings from "./pages/dashboard/settings";
-import { 
-  ResidentHomePage, 
-  ResidentNotificationsPage, 
-  ResidentEDocumentsPage, 
-  ResidentTicketsPage, 
-  ResidentMyInvaoicesPage, 
-  ResidentProfilePage, 
+import {
+  ResidentHomePage,
+  ResidentNotificationsPage,
+  ResidentEDocumentsPage,
+  ResidentTicketsPage,
+  ResidentMyInvaoicesPage,
+  ResidentProfilePage,
   ResidentMyPropertiesPage,
   ResidentMyServicesPage,
   ResidentComplexDashboardPage,
@@ -55,6 +55,7 @@ import TransfersPage from "./pages/dashboard/finance/transfers";
 import DebtPage from "./pages/dashboard/finance/debt";
 import PermissionsPage from "./pages/dashboard/permissions";
 import DevicesPage from "./pages/dashboard/devices";
+import ParkingPage from "./pages/dashboard/parking";
 import UserAddPage from "./pages/dashboard/users/add";
 
 const icon = {
@@ -132,6 +133,86 @@ export const routes = [
             allowedRoles: ["admin", "manager"],
           },
         ],
+      },
+      {
+        icon: <BuildingOfficeIcon {...icon} />,
+        name: "sidebar.buildingManagement",
+        moduleName: "manage",
+        moduleId: 2,
+        children: [
+          {
+            icon: <BuildingOfficeIcon {...icon} />,
+            name: "sidebar.mtk",
+            path: "/management/mtk",
+            element: <MtkPage />,
+            moduleName: "mtk",
+            moduleId: 3,
+          },
+          {
+            icon: <BuildingOffice2Icon {...icon} />,
+            name: "sidebar.complexes",
+            path: "/management/complexes",
+            element: <ComplexesPage />,
+            moduleName: "complex",
+            moduleId: 4,
+          },
+          {
+            icon: <HomeModernIcon {...icon} />,
+            name: "sidebar.buildings",
+            path: "/management/buildings",
+            element: <BuildingsPage />,
+            moduleName: "building",
+            moduleId: 5,
+          },
+          {
+            icon: <RectangleStackIcon {...icon} />,
+            name: "sidebar.blocks",
+            path: "/management/blocks",
+            element: <BlocksPage />,
+            moduleName: "block",
+            moduleId: 6,
+          },
+          {
+            icon: <HomeIcon {...icon} />,
+            name: "sidebar.properties",
+            path: "/management/properties",
+            element: <PropertiesPage />,
+            moduleName: "property",
+            moduleId: 7,
+          },
+          {
+            icon: <UsersIcon {...icon} />,
+            name: "sidebar.residents",
+            path: "/management/residents",
+            element: <ResidentsPage />,
+            moduleName: "resident",
+            moduleId: 8,
+          },
+        ],
+      },
+      {
+        icon: <CogIcon {...icon} />,
+        name: "sidebar.services",
+        path: "/services",
+        element: <ServicesPage />,
+        moduleName: "service",
+        moduleId: 12,
+      },
+      {
+        icon: <CpuChipIcon {...icon} />,
+        name: "sidebar.devices",
+        path: "/devices",
+        element: <DevicesPage />,
+        // moduleName: "device",
+        // moduleId: 0,
+      },
+      {
+        name: "sidebar.parking",
+        path: "/parking",
+        element: <ParkingPage />,
+        icon: <BuildingOfficeIcon {...icon} />,
+        // moduleName: "parking",
+        // moduleId: 0,
       },
       {
         icon: <BellIcon {...icon} />,
@@ -214,78 +295,6 @@ export const routes = [
         element: <KPI />,
         // moduleName: "kpi",
         // moduleId: 0,
-      },
-      {
-        icon: <BuildingOfficeIcon {...icon} />,
-        name: "sidebar.buildingManagement",
-        moduleName: "manage",
-        moduleId: 2,
-        children: [
-          {
-            icon: <BuildingOfficeIcon {...icon} />,
-            name: "sidebar.mtk",
-            path: "/management/mtk",
-            element: <MtkPage />,
-            moduleName: "mtk",
-            moduleId: 3,
-          },
-          {
-            icon: <BuildingOffice2Icon {...icon} />,
-            name: "sidebar.complexes",
-            path: "/management/complexes",
-            element: <ComplexesPage />,
-            moduleName: "complex",
-            moduleId: 4,
-          },
-          {
-            icon: <HomeModernIcon {...icon} />,
-            name: "sidebar.buildings",
-            path: "/management/buildings",
-            element: <BuildingsPage />,
-            moduleName: "building",
-            moduleId: 5,
-          },
-          {
-            icon: <RectangleStackIcon {...icon} />,
-            name: "sidebar.blocks",
-            path: "/management/blocks",
-            element: <BlocksPage />,
-            moduleName: "block",
-            moduleId: 6,
-          },
-          {
-            icon: <HomeIcon {...icon} />,
-            name: "sidebar.properties",
-            path: "/management/properties",
-            element: <PropertiesPage />,
-            moduleName: "property",
-            moduleId: 7,
-          },
-          {
-            icon: <UsersIcon {...icon} />,
-            name: "sidebar.residents",
-            path: "/management/residents",
-            element: <ResidentsPage />,
-            moduleName: "resident",
-            moduleId: 8,
-          },
-        ],
-      },
-      {
-        icon: <CpuChipIcon {...icon} />,
-        name: "sidebar.devices",
-        path: "/devices",
-        element: <DevicesPage />,
-        // moduleName: "device",
-        // moduleId: 0,
-      },
-      {
-        icon: <CogIcon {...icon} />,
-        name: "sidebar.services",
-        path: "/services",
-        element: <ServicesPage />,
-        moduleName: "service",
-        moduleId: 12,
       },
       {
         icon: <BookOpenIcon {...icon} />,

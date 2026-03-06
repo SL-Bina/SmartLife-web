@@ -83,7 +83,35 @@
     "permissions": "Hüquqlar",
     "profile": "Profil",
     "users": "İstifadəçilər",
-    "myInvoices": "Fakturalarım"
+    "myInvoices": "Fakturalarım",
+    "parking": "Parkinq"
+  },
+  "parking": {
+    "pageTitle": "Parkinq İdarəetməsi",
+    "pageSubtitle": "Parkinq yerlərini real vaxtda izləyin",
+    "stats": {
+      "total": "Ümumi",
+      "available": "Boş",
+      "occupied": "Tutulmuş",
+      "reserved": "Rezerv",
+      "disabled": "Bağlı"
+    },
+    "status": {
+      "available": "Boş",
+      "occupied": "Tutulmuş",
+      "reserved": "Rezerv",
+      "disabled": "Bağlı"
+    },
+    "spot": "Parkinq yeri",
+    "zone": "Zona",
+    "floor": "Mərtəbə",
+    "resident": "Sakin",
+    "property": "Mənzil",
+    "plate": "Qeydiyyat nişanı",
+    "lane": "Keçid yolu",
+    "noSpots": "Uyğun parkinq yeri tapılmadı",
+    "searchPlaceholder": "Yer, sakin, nişan...",
+    "filterAll": "Hamısı"
   },
   "buttons": {
     "clear": "Təmizlə",

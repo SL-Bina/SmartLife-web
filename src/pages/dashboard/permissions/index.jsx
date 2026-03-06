@@ -456,33 +456,31 @@ const PermissionsPage = () => {
         onClose={closeToast}
       />
 
+      {/* Roles top bar */}
+      <div className="flex-shrink-0">
+        <RolesPanel
+          roles={roles}
+          loading={rolesLoading}
+          selectedRoleId={selectedRoleId}
+          onRoleSelect={handleRoleSelect}
+          onCreateClick={handleCreateClick}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleRoleDeleteClick}
+        />
+      </div>
 
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
-        <div className="h-full min-h-[400px]">
-          <RolesPanel
-            roles={roles}
-            loading={rolesLoading}
-            selectedRoleId={selectedRoleId}
-            onRoleSelect={handleRoleSelect}
-            onCreateClick={handleCreateClick}
-            onEditClick={handleEditClick}
-            onDeleteClick={handleRoleDeleteClick}
-          />
-        </div>
-
-        <div className="h-full min-h-[400px]">
-          <PermissionsPanel
-            modules={modules}
-            loading={permissionsLoading}
-            selectedPermissions={selectedPermissions}
-            onPermissionToggle={handlePermissionToggle}
-            onModuleToggle={handleModuleToggle}
-            onCreateClick={openPermissionCreate}
-            onEditPermission={openPermissionEdit}
-            onDeletePermission={openPermissionDelete}
-          />
-        </div>
+      {/* Permissions grid */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <PermissionsPanel
+          modules={modules}
+          loading={permissionsLoading}
+          selectedPermissions={selectedPermissions}
+          onPermissionToggle={handlePermissionToggle}
+          onModuleToggle={handleModuleToggle}
+          onCreateClick={openPermissionCreate}
+          onEditPermission={openPermissionEdit}
+          onDeletePermission={openPermissionDelete}
+        />
       </div>
 
       <RoleFormModal
