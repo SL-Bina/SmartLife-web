@@ -113,6 +113,20 @@
     "searchPlaceholder": "Yer, sakin, nişan...",
     "filterAll": "Hamısı"
   },
+  "addBalance": {
+    "title": "Balans əlavə et",
+    "property": "Mənzil",
+    "amount": "Məbləğ (AZN)",
+    "amountPlaceholder": "0.00",
+    "cashNote": "Nağd ödəniş balansa əlavə edilecək",
+    "submit": "Əlavə et",
+    "success": "Balans uğurla əlavə edildi",
+    "errors": {
+      "amountRequired": "Məbləğ daxil edin",
+      "noProperty": "Mənzil seçilməyib",
+      "failed": "Xəta baş verdi"
+    }
+  },
   "buttons": {
     "clear": "Təmizlə",
     "filter": "Filterlə",
@@ -354,7 +368,9 @@
     "pageTitle": "Fakturalar",
     "summary": {
       "paid": "Ödənilib",
-      "consumption": "İstehlak həcmi"
+      "consumption": "İstehlak həcmi",
+      "totalPaid": "Cəmi ödənilmiş",
+      "totalConsumption": "Cəmi istehlak"
     },
     "filter": {
       "title": "Axtarış",
@@ -457,6 +473,7 @@
       "add": "Əlavə et",
       "view": "Bax",
       "edit": "Düzəliş et",
+      "pay": "Ödə",
       "delete": "Sil",
       "loading": "Yüklənir..."
     },
@@ -487,8 +504,10 @@
       "owner": "Mənzil sahibi",
       "amount": "Məbləğ",
       "paid": "Ödənilən",
-      "remaining": "Qalıq"
+      "remaining": "Qalıq",
+      "more": "daha"
     },
+    "noData": "Faktura tapılmadı",
     "labels": {
       "balance": "Balans",
       "building": "Bina",
@@ -499,6 +518,7 @@
     "status": {
       "paid": "Ödənilib",
       "unpaid": "Ödənilməmiş",
+      "not_paid": "Ödənilməmiş",
       "pending": "Gözləyir",
       "overdue": "Gecikmiş",
       "declined": "Rədd edilib",
@@ -515,6 +535,23 @@
     },
     "searchModal": {
       "title": "Ətraflı Axtarış",
+      "invoiceId": "Faktura ID",
+      "type": "Növ",
+      "all": "Hamısı",
+      "service": "Xidmət",
+      "selectService": "Xidmət seçin",
+      "cascadeSection": "Mənzil seçimi",
+      "dateRangesSection": "Tarix aralıqları",
+      "amountRangesSection": "Məbləğ aralıqları",
+      "paymentDateRange": "Ödəniş tarixi aralığı",
+      "invoiceAmount": "Faktura məbləği (₼)",
+      "paidAmountLabel": "Ödənilmiş məbləğ (₼)",
+      "dateFrom": "Başlanğıc",
+      "dateTo": "Son",
+      "min": "Minimum",
+      "max": "Maksimum",
+      "reset": "Təmizlə",
+      "search": "Axtar",
       "serviceName": "Xidmət adı",
       "propertyName": "Mənzil adı",
       "complexName": "Kompleks adı",
@@ -523,6 +560,21 @@
       "maxAmount": "Maksimum Məbləğ",
       "startDate": "Başlama Tarixi",
       "dueDate": "Son Tarix"
+    },
+    "pay": {
+      "title": "Faktura Ödənişi",
+      "invoiceId": "Faktura ID",
+      "amountPaid": "Ödəniləcək məbləğ (₼)",
+      "selectMethod": "Ödəniş metodu seçin",
+      "loadingMethods": "Yüklənir...",
+      "paidAt": "Ödəniş tarixi (istəyə bağlı)",
+      "desc": "Qeyd (istəyə bağlı)",
+      "submit": "Ödə",
+      "errors": {
+        "amountRequired": "Məbləğ daxil edin",
+        "methodRequired": "Ödəniş metodunu seçin",
+        "failed": "Ödəniş zamanı xəta baş verdi"
+      }
     },
     "pageSubtitle": "Faktura siyahısı, yarat / redaktə et / sil / bax",
     "types": {
@@ -719,7 +771,9 @@
       "method.bank": "Bank",
       "total": "Toplam",
       "date": "Tarix",
-      "confirm": "Ödənişi təsdiqlə"
+      "confirm": "Ödənişi təsdiqlə",
+      "success": "Ödəniş uğurla tamamlandı",
+      "error": "Ödəniş zamanı xəta baş verdi"
     },
     "invoices": {
       "title": "Fakturalar",
@@ -2300,16 +2354,27 @@
     "pageTitle": "İstifadəçi Hüquqları",
     "subtitle": "İstifadəçi rollarını və icazələrini idarə edin",
     "loading": "Yüklənir...",
-    "search": "Axtarış...",
+    "search": "Modul / icazə axtar...",
+    "searchRoles": "Rol axtar...",
     "savePermissions": "İcazələri yadda saxla",
+    "permissionsTitle": "İcazələr",
+    "modulesCount": "modul",
+    "selectRoleHint": {
+      "title": "Rol seçin",
+      "desc": "İcazələri görmək və redaktə etmək üçün sol paneldən bir rol seçin"
+    },
     "roles": {
-      "title": "Hüquqlar",
+      "title": "Rollar",
       "total": "Cəmi",
       "role": "rol",
-      "create": "Hüquq yarat",
-      "noRoles": "Rol tapılmadı",
+      "create": "Yeni rol yarat",
+      "noRoles": "Rol yoxdur",
+      "noRolesFiltered": "Tapılmadı",
       "created": "Rol uğurla yaradıldı",
       "updated": "Rol uğurla yeniləndi",
+      "deleted": "Rol silindi",
+      "deleteTitle": "Rolu sil",
+      "deleteDesc": "Bu rolu silmək istədiyinizə əminsiniz?",
       "createError": "Rol yaradılarkən xəta baş verdi",
       "updateError": "Rol yenilənərkən xəta baş verdi",
       "form": {
@@ -2327,11 +2392,28 @@
       "title": "İcazələr",
       "total": "Cəmi",
       "permission": "icazə",
+      "create": "İcazə yarat",
       "noPermissions": "İcazə tapılmadı",
       "saved": "İcazələr uğurla yadda saxlanıldı",
       "saveError": "İcazələr yadda saxlanarkən xəta baş verdi",
+      "created": "İcazə uğurla yaradıldı",
+      "updated": "İcazə uğurla yeniləndi",
+      "deleted": "İcazə silindi",
+      "deleteTitle": "İcazəni sil",
+      "deleteDesc": "Bu icazəni silmək istədiyinizə əminsiniz?",
       "autoSaved": "İcazələr avtomatik yadda saxlanıldı",
-      "autoSaveError": "İcazələr avtomatik yadda saxlanarkən xəta baş verdi"
+      "autoSaveError": "İcazələr avtomatik yadda saxlanarkən xəta baş verdi",
+      "form": {
+        "module": "Modul",
+        "name": "İcazə adı",
+        "detail": "İcazə təsviri"
+      },
+      "createModal": {
+        "title": "Yeni icazə yarat"
+      },
+      "editModal": {
+        "title": "İcazəni düzəliş et"
+      }
     },
     "modules": {
       "dashboard": "Panel",

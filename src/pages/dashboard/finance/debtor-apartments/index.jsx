@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useDebtorApartmentsData } from "./hooks/useDebtorApartmentsData";
 import { useDebtorApartmentsFilters } from "./hooks/useDebtorApartmentsFilters";
 import { usePaymentForm } from "./hooks/usePaymentForm";
-import { payInvoices, exportToExcel } from "./api";
+import { payInvoices, exportToExcel, fetchInvoices } from "./api";
 import { DebtorApartmentsHeader } from "./components/DebtorApartmentsHeader";
 import { DebtorApartmentsActions } from "./components/DebtorApartmentsActions";
 import { DebtorApartmentsTable } from "./components/DebtorApartmentsTable";
@@ -13,16 +13,19 @@ import { DebtorApartmentsPagination } from "./components/DebtorApartmentsPaginat
 import { DebtorApartmentsFilterModal } from "./components/modals/DebtorApartmentsFilterModal";
 import { DebtorApartmentsViewModal } from "./components/modals/DebtorApartmentsViewModal";
 import { DebtorApartmentsPayModal } from "./components/modals/DebtorApartmentsPayModal";
-import { DebtorApartmentsInvoicesModal } from "./components/modals/DebtorApartmentsInvoicesModal";
+import DynamicToast from "@/components/DynamicToast";
+import { useDynamicToast } from "@/hooks/useDynamicToast";
 
 const DebtorApartmentsPage = () => {
   const { t } = useTranslation();
+  const { toast, showToast, closeToast } = useDynamicToast();
   const [viewOpen, setViewOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
-  const [invoicesOpen, setInvoicesOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [page, setPage] = useState(1);
+  const [invoicesForPay, setInvoicesForPay] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   const { filters, filterOpen, setFilterOpen, updateFilter, clearFilters, applyFilters } = useDebtorApartmentsFilters();
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -67,51 +70,69 @@ const DebtorApartmentsPage = () => {
     setViewOpen(true);
   };
 
-  const openPayModal = (item) => {
+  const openPayModal = async (item) => {
     setSelectedItem(item);
+    setInvoicesForPay([]);
     resetForm();
     loadPaymentMethods();
     setPayOpen(true);
-  };
-
-  const openInvoicesModal = (item) => {
-    setSelectedItem(item);
-    setInvoicesOpen(true);
+    // Pre-load this apartment's invoices so we have real invoice IDs ready
+    try {
+      const invoices = await fetchInvoices(item.id);
+      const unpaid = invoices.filter((inv) => (inv.remaining ?? inv.amount ?? 0) > 0);
+      setInvoicesForPay(unpaid);
+      const totalRemaining = unpaid.reduce((sum, inv) => sum + parseFloat(inv.remaining ?? inv.amount ?? 0), 0);
+      setAmountValue(String(totalRemaining));
+    } catch (err) {
+      console.error("Error loading invoices for pay modal:", err);
+    }
   };
 
   const handlePaySave = async () => {
+    if (saving) return;
+    setSaving(true);
     try {
-      if (selectedItem && amount && paymentMethodId) {
-        // Build invoice payload: one entry per selected invoice, or a single entry
-        const selectedInvoices = selectedItem.selectedInvoices || [];
-        const selectedInvoicesData = selectedItem.selectedInvoicesData || [];
-        const invoices = selectedInvoices.length > 0
-          ? selectedInvoices.map((invoiceId, idx) => ({
-              id: invoiceId,
-              amount_paid: parseFloat(
-                selectedInvoicesData[idx]?.amount_paid ??
-                selectedInvoicesData[idx]?.amount ??
-                amount
-              ),
-              payment_method_id: paymentMethodId,
-              ...(note ? { desc: note } : {}),
-              ...(paymentDate ? { paid_at: paymentDate } : {}),
-            }))
-          : [{
-              id: selectedItem.id,
-              amount_paid: parseFloat(amount),
-              payment_method_id: paymentMethodId,
-              ...(note ? { desc: note } : {}),
-              ...(paymentDate ? { paid_at: paymentDate } : {}),
-            }];
+      const selectedInvoices = selectedItem?.selectedInvoices || [];
+      const selectedInvoicesData = selectedItem?.selectedInvoicesData || [];
 
-        await payInvoices(invoices);
-        setPayOpen(false);
-        resetForm();
-        setRefreshKey((prev) => prev + 1);
+      let invoices;
+      if (selectedInvoices.length > 0) {
+        // From ViewModal: user selected specific invoices
+        invoices = selectedInvoices.map((invoiceId, idx) => ({
+          id: invoiceId,
+          amount_paid: parseFloat(
+            selectedInvoicesData[idx]?.amount_paid ??
+            selectedInvoicesData[idx]?.amount ??
+            amount
+          ),
+          payment_method_id: paymentMethodId,
+          ...(note ? { desc: note } : {}),
+          ...(paymentDate ? { paid_at: paymentDate } : {}),
+        }));
+      } else if (invoicesForPay.length > 0) {
+        // From direct Pay button: pay all pre-loaded unpaid invoices at their remaining amounts
+        invoices = invoicesForPay.map((inv) => ({
+          id: inv.id,
+          amount_paid: parseFloat(inv.remaining ?? inv.amount ?? 0),
+          payment_method_id: paymentMethodId,
+          ...(note ? { desc: note } : {}),
+          ...(paymentDate ? { paid_at: paymentDate } : {}),
+        }));
+      } else {
+        throw new Error("No invoices to pay");
       }
+
+      await payInvoices(invoices);
+      setPayOpen(false);
+      resetForm();
+      setInvoicesForPay([]);
+      setRefreshKey((prev) => prev + 1);
+      showToast({ type: "success", message: t("debtorApartments.pay.success") || "Ödəniş uğurla tamamlandı" });
     } catch (error) {
       console.error("Error paying invoices:", error);
+      showToast({ type: "error", message: t("debtorApartments.pay.error") || "Ödəniş zamanı xəta baş verdi" });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -180,6 +201,7 @@ const DebtorApartmentsPage = () => {
               <DebtorApartmentsTable
                 apartments={apartments}
                 onView={openViewModal}
+                onPay={openPayModal}
                 sortConfig={sortConfig}
                 onSortChange={handleSortChange}
               />
@@ -187,7 +209,6 @@ const DebtorApartmentsPage = () => {
                 apartments={apartments}
                 onView={openViewModal}
                 onPay={openPayModal}
-                onInvoices={openInvoicesModal}
               />
               <DebtorApartmentsPagination
                 page={page}
@@ -218,6 +239,7 @@ const DebtorApartmentsPage = () => {
         onPay={(data) => {
           // View modal qalır, sadəcə ödəniş modalını açırıq
           setSelectedItem(data);
+          setInvoicesForPay([]); // selectedInvoices içindədir, preloaded lazım deyil
           resetForm();
           setAmountValue(String(data?.selectedAmount || ""));
           loadPaymentMethods();
@@ -243,15 +265,16 @@ const DebtorApartmentsPage = () => {
         paymentDate={paymentDate}
         onFieldChange={setPaymentField}
         onSave={handlePaySave}
+        saving={saving}
       />
 
-      <DebtorApartmentsInvoicesModal
-        open={invoicesOpen}
-        onClose={() => {
-          setInvoicesOpen(false);
-          setSelectedItem(null);
-        }}
-        apartment={selectedItem}
+      <DynamicToast
+        open={toast.open}
+        type={toast.type}
+        title={toast.title}
+        message={toast.message}
+        duration={toast.duration}
+        onClose={closeToast}
       />
     </div>
   );

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Typography, Button } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
 
 import { rolesAPI, permissionsAPI } from "./api";
@@ -438,6 +437,10 @@ const PermissionsPage = () => {
     }
   };
 
+  const selectedRoleName = selectedRole
+    ? (selectedRole.role_name ?? selectedRole.name ?? "")
+    : "";
+
   return (
     <div className="h-full flex flex-col">
 
@@ -456,31 +459,37 @@ const PermissionsPage = () => {
         onClose={closeToast}
       />
 
-      {/* Roles top bar */}
-      <div className="flex-shrink-0">
-        <RolesPanel
-          roles={roles}
-          loading={rolesLoading}
-          selectedRoleId={selectedRoleId}
-          onRoleSelect={handleRoleSelect}
-          onCreateClick={handleCreateClick}
-          onEditClick={handleEditClick}
-          onDeleteClick={handleRoleDeleteClick}
-        />
-      </div>
+      {/* Two-column layout: roles sidebar + permissions panel */}
+      <div className="flex flex-1 min-h-0 gap-4 overflow-hidden">
 
-      {/* Permissions grid */}
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <PermissionsPanel
-          modules={modules}
-          loading={permissionsLoading}
-          selectedPermissions={selectedPermissions}
-          onPermissionToggle={handlePermissionToggle}
-          onModuleToggle={handleModuleToggle}
-          onCreateClick={openPermissionCreate}
-          onEditPermission={openPermissionEdit}
-          onDeletePermission={openPermissionDelete}
-        />
+        {/* Left: roles sidebar — fixed width */}
+        <div className="w-64 flex-shrink-0 min-h-0">
+          <RolesPanel
+            roles={roles}
+            loading={rolesLoading}
+            selectedRoleId={selectedRoleId}
+            onRoleSelect={handleRoleSelect}
+            onCreateClick={handleCreateClick}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleRoleDeleteClick}
+          />
+        </div>
+
+        {/* Right: permissions matrix — scrollable container */}
+        <div className="flex-1 min-w-0 overflow-y-auto">
+          <PermissionsPanel
+            modules={modules}
+            loading={permissionsLoading}
+            selectedPermissions={selectedPermissions}
+            onPermissionToggle={handlePermissionToggle}
+            onModuleToggle={handleModuleToggle}
+            onCreateClick={openPermissionCreate}
+            onEditPermission={openPermissionEdit}
+            onDeletePermission={openPermissionDelete}
+            selectedRoleId={selectedRoleId}
+            selectedRoleName={selectedRoleName}
+          />
+        </div>
       </div>
 
       <RoleFormModal

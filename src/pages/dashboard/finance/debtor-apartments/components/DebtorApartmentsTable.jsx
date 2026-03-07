@@ -1,9 +1,9 @@
 import React from "react";
 import { Typography, IconButton } from "@material-tailwind/react";
-import { EyeIcon, ArrowUpIcon, ArrowDownIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, ArrowUpIcon, ArrowDownIcon, CreditCardIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 
-export function DebtorApartmentsTable({ apartments, onView, sortConfig, onSortChange }) {
+export function DebtorApartmentsTable({ apartments, onView, onPay, sortConfig, onSortChange }) {
   const { t } = useTranslation();
 
   const columns = [
@@ -145,15 +145,27 @@ export function DebtorApartmentsTable({ apartments, onView, sortConfig, onSortCh
                   </Typography>
                 </td>
                 <td className={`${className} text-right`} onClick={(e) => e.stopPropagation()}>
-                  <IconButton
-                    size="sm"
-                    variant="text"
-                    color="blue-gray"
-                    onClick={() => onView(row)}
-                    className="dark:text-gray-300 dark:hover:bg-blue-600/20 hover:bg-blue-100"
-                  >
-                    <EyeIcon strokeWidth={2} className="h-5 w-5" />
-                  </IconButton>
+                  <div className="flex items-center justify-end gap-1">
+                    <IconButton
+                      size="sm"
+                      variant="text"
+                      color="blue-gray"
+                      onClick={() => onView(row)}
+                      className="dark:text-gray-300 dark:hover:bg-blue-600/20 hover:bg-blue-100"
+                    >
+                      <EyeIcon strokeWidth={2} className="h-5 w-5" />
+                    </IconButton>
+                    <IconButton
+                      size="sm"
+                      variant="text"
+                      color="blue"
+                      onClick={() => onPay(row)}
+                      className="dark:text-blue-400 dark:hover:bg-blue-600/20 hover:bg-blue-100"
+                      title={t("debtorApartments.actions.pay")}
+                    >
+                      <CreditCardIcon strokeWidth={2} className="h-5 w-5" />
+                    </IconButton>
+                  </div>
                 </td>
               </tr>
             );

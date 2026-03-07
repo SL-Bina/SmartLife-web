@@ -16,6 +16,7 @@ import { DeleteConfirmModal } from "./components/modals/DeleteConfirmModal";
 import { EditConfirmModal } from "./components/modals/EditConfirmModal";
 import { UserIcon, EnvelopeIcon, PhoneIcon, IdentificationIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import PropertyBindModal from "./components/modals/PropertyBindModal";
+import { AddBalanceCashModal } from "@/components/finance/AddBalanceCashModal";
 
 export default function ResidentsPage() {
   const dispatch = useAppDispatch();
@@ -36,6 +37,7 @@ export default function ResidentsPage() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [bindModalOpen, setBindModalOpen] = useState(false);
+  const [balanceModal, setBalanceModal] = useState({ open: false, propertyId: null, propertyName: "" });
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [editConfirmOpen, setEditConfirmOpen] = useState(false);
@@ -253,6 +255,9 @@ export default function ResidentsPage() {
             dispatch(loadResidentById(selectedResidentId));
           }
         }}
+        onAddBalance={(propertyId, propertyName) =>
+          setBalanceModal({ open: true, propertyId, propertyName })
+        }
       />
 
       <ResidentSearchModal
@@ -336,6 +341,14 @@ export default function ResidentsPage() {
         message={toast.message}
         title={toast.title}
         onClose={() => setToast({ ...toast, open: false })}
+      />
+
+      <AddBalanceCashModal
+        open={balanceModal.open}
+        onClose={() => setBalanceModal({ open: false, propertyId: null, propertyName: "" })}
+        propertyId={balanceModal.propertyId}
+        propertyName={balanceModal.propertyName}
+        onSuccess={() => setBalanceModal({ open: false, propertyId: null, propertyName: "" })}
       />
     </div>
   );

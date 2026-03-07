@@ -14,6 +14,7 @@ import { PropertyPagination } from "./components/PropertyPagination";
 import { PropertyFormModal } from "./components/modals/PropertyFormModal";
 import { PropertySearchModal } from "./components/modals/PropertySearchModal";
 import { PropertyServiceFeeModal } from "./components/modals/PropertyServiceFeeModal";
+import { AddBalanceCashModal } from "@/components/finance/AddBalanceCashModal";
 import { usePropertyForm } from "./hooks/usePropertyForm";
 import { usePropertyData } from "./hooks/usePropertyData";
 import propertiesAPI from "./api";
@@ -52,6 +53,8 @@ export default function PropertiesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [serviceFeeModalOpen, setServiceFeeModalOpen] = useState(false);
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
+  const [itemForBalance, setItemForBalance] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -170,6 +173,11 @@ export default function PropertiesPage() {
   const handleServiceFee = (property) => {
     setSelected(property);
     setServiceFeeModalOpen(true);
+  };
+
+  const handleAddBalance = (property) => {
+    setItemForBalance(property);
+    setBalanceModalOpen(true);
   };
 
   const submitForm = async (formData) => {
@@ -297,6 +305,7 @@ export default function PropertiesPage() {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onServiceFee={handleServiceFee}
+            onAddBalance={handleAddBalance}
             onSelect={handleSelect}
             selectedPropertyId={selectedPropertyId}
           />
@@ -307,6 +316,7 @@ export default function PropertiesPage() {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onServiceFee={handleServiceFee}
+            onAddBalance={handleAddBalance}
             onSelect={handleSelect}
             selectedPropertyId={selectedPropertyId}
           />
@@ -368,6 +378,20 @@ export default function PropertiesPage() {
         onClose={() => {
           setServiceFeeModalOpen(false);
           setSelected(null);
+        }}
+      />
+
+      <AddBalanceCashModal
+        open={balanceModalOpen}
+        onClose={() => {
+          setBalanceModalOpen(false);
+          setItemForBalance(null);
+        }}
+        propertyId={itemForBalance?.id}
+        propertyName={itemForBalance?.name || itemForBalance?.apartment_number || (itemForBalance?.id ? `Mənzil #${itemForBalance.id}` : "")}
+        onSuccess={() => {
+          showToast("success", "Balans uğurla əlavə edildi", "Uğurlu");
+          refresh();
         }}
       />
 

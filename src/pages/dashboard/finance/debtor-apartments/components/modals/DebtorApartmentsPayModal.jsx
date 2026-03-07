@@ -16,6 +16,7 @@ export function DebtorApartmentsPayModal({
   methodsLoading,
   onFieldChange,
   onSave,
+  saving = false,
 }) {
   const { t } = useTranslation();
 
@@ -156,9 +157,11 @@ export function DebtorApartmentsPayModal({
         </Button>
         <Button 
           color="blue" 
-          onClick={onSave} 
-          className="dark:bg-blue-600 dark:hover:bg-blue-700 px-8 shadow-lg hover:shadow-xl transition-all"
+          onClick={onSave}
+          disabled={saving}
+          className="dark:bg-blue-600 dark:hover:bg-blue-700 px-8 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
         >
+          {saving && <Spinner className="h-4 w-4" />}
           {t("debtorApartments.pay.confirm") || "Ödənişi təsdiqlə"}
         </Button>
       </DialogFooter>

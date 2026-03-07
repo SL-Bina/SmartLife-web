@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useInvoicesData } from "./hooks/useInvoicesData";
 import { useInvoicesForm } from "./hooks/useInvoicesForm";
 import { useInvoicesFilters } from "./hooks/useInvoicesFilters";
-import { createInvoice, updateInvoice, deleteInvoice, fetchInvoiceById } from "./api";
+import { createInvoice, updateInvoice, deleteInvoice, fetchInvoiceById, payInvoices } from "./api";
 import propertiesAPI from "@/pages/dashboard/management/properties/api";
 import { InvoicesHeader } from "./components/InvoicesHeader";
 import { InvoicesSummaryCard } from "./components/InvoicesSummaryCard";
@@ -13,6 +13,7 @@ import { InvoicesTable } from "./components/InvoicesTable";
 import { InvoicesCardList } from "./components/InvoicesCardList";
 import { InvoicesPagination } from "./components/InvoicesPagination";
 import { InvoicesFormModal } from "./components/modals/InvoicesFormModal";
+import { InvoicesPayModal } from "./components/modals/InvoicesPayModal";
 import { InvoicesSearchModal } from "./components/modals/InvoicesSearchModal";
 import { ViewModal } from "@/components/management/ViewModal";
 import { DeleteConfirmModal } from "@/components/management/DeleteConfirmModal";
@@ -49,6 +50,7 @@ const InvoicesPage = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [payModalOpen, setPayModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [viewLoading, setViewLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
@@ -56,6 +58,7 @@ const InvoicesPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [itemToView, setItemToView] = useState(null);
+  const [itemToPay, setItemToPay] = useState(null);
   const [mode, setMode] = useState("create");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState({ open: false, type: "info", message: "", title: "" });
@@ -182,6 +185,16 @@ const InvoicesPage = () => {
   const handleDelete = (item) => {
     setItemToDelete(item);
     setDeleteModalOpen(true);
+  };
+
+  const handlePay = (item) => {
+    setItemToPay(item);
+    setPayModalOpen(true);
+  };
+
+  const handlePaySuccess = () => {
+    showToast("success", "Faktura uğurla ödənildi", "Uğurlu");
+    setRefreshKey((prev) => prev + 1);
   };
 
   const handleCreateSave = async () => {
@@ -443,12 +456,13 @@ const InvoicesPage = () => {
         </div>
       ) : (
         <>
-          <InvoicesTable 
-            invoices={invoices} 
+          <InvoicesTable
+            invoices={invoices}
             loading={loading}
-            onView={handleView} 
-            onEdit={handleEdit} 
+            onView={handleView}
+            onEdit={handleEdit}
             onDelete={handleDelete}
+            onPay={handlePay}
           />
           <InvoicesCardList
             invoices={invoices}
@@ -456,6 +470,7 @@ const InvoicesPage = () => {
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onPay={handlePay}
           />
           {pagination.totalPages > 1 && (
             <InvoicesPagination
@@ -516,6 +531,16 @@ const InvoicesPage = () => {
         onClose={() => setSearchModalOpen(false)}
         onSearch={handleSearch}
         currentFilters={filters}
+      />
+
+      <InvoicesPayModal
+        open={payModalOpen}
+        onClose={() => {
+          setPayModalOpen(false);
+          setItemToPay(null);
+        }}
+        invoice={itemToPay}
+        onSuccess={handlePaySuccess}
       />
 
       <DynamicToast

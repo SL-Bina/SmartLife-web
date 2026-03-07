@@ -83,6 +83,20 @@
     "userPermissions": "Permissions",
     "profile": "Profile"
   },
+  "addBalance": {
+    "title": "Add Balance",
+    "property": "Apartment",
+    "amount": "Amount (AZN)",
+    "amountPlaceholder": "0.00",
+    "cashNote": "Cash payment will be added to balance",
+    "submit": "Add",
+    "success": "Balance added successfully",
+    "errors": {
+      "amountRequired": "Enter an amount",
+      "noProperty": "No apartment selected",
+      "failed": "An error occurred"
+    }
+  },
   "buttons": {
     "clear": "Clear",
     "filter": "Filter",
@@ -321,7 +335,9 @@
     "pageTitle": "Invoices",
     "summary": {
       "paid": "Paid",
-      "consumption": "Consumption volume"
+      "consumption": "Consumption volume",
+      "totalPaid": "Total paid",
+      "totalConsumption": "Total consumption"
     },
     "filter": {
       "title": "Invoice filter",
@@ -366,6 +382,7 @@
       "add": "Add",
       "view": "View",
       "edit": "Edit",
+      "pay": "Pay",
       "delete": "Delete",
       "loading": "Loading..."
     },
@@ -408,6 +425,7 @@
     "status": {
       "paid": "Paid",
       "unpaid": "Unpaid",
+      "not_paid": "Unpaid",
       "pending": "Pending",
       "overdue": "Overdue",
       "declined": "Declined",
@@ -482,6 +500,23 @@
     },
     "searchModal": {
       "title": "Advanced Search",
+      "invoiceId": "Invoice ID",
+      "type": "Type",
+      "all": "All",
+      "service": "Service",
+      "selectService": "Select service",
+      "cascadeSection": "Property selection",
+      "dateRangesSection": "Date ranges",
+      "amountRangesSection": "Amount ranges",
+      "paymentDateRange": "Payment date range",
+      "invoiceAmount": "Invoice amount (₼)",
+      "paidAmountLabel": "Paid amount (₼)",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "min": "Minimum",
+      "max": "Maximum",
+      "reset": "Clear",
+      "search": "Search",
       "serviceName": "Service name",
       "propertyName": "Apartment name",
       "complexName": "Complex name",
@@ -490,6 +525,30 @@
       "maxAmount": "Max amount",
       "startDate": "Start date",
       "dueDate": "Due date"
+    },
+    "noData": "No invoices found",
+    "mobile": {
+      "id": "ID",
+      "owner": "Apartment owner",
+      "amount": "Amount",
+      "paid": "Paid",
+      "remaining": "Remaining",
+      "more": "more"
+    },
+    "pay": {
+      "title": "Invoice Payment",
+      "invoiceId": "Invoice ID",
+      "amountPaid": "Amount to pay (₼)",
+      "selectMethod": "Select payment method",
+      "loadingMethods": "Loading...",
+      "paidAt": "Payment date (optional)",
+      "desc": "Note (optional)",
+      "submit": "Pay",
+      "errors": {
+        "amountRequired": "Please enter an amount",
+        "methodRequired": "Please select a payment method",
+        "failed": "An error occurred during payment"
+      }
     },
     "pageSubtitle": "Invoice list, create / edit / delete / view",
     "types": {
@@ -651,7 +710,9 @@
     },
     "pay": {
       "title": "Pay Debt",
-      "amount": "Payment Amount"
+      "amount": "Payment Amount",
+      "success": "Payment completed successfully",
+      "error": "An error occurred during payment"
     },
     "invoices": {
       "title": "Invoices",
@@ -2050,6 +2111,110 @@
       "resident": "Resident",
       "complex": "Complex",
       "building": "Building"
+    }
+  },
+  "permissions": {
+    "pageTitle": "User Permissions",
+    "subtitle": "Manage user roles and permissions",
+    "loading": "Loading...",
+    "search": "Module / permission search...",
+    "searchRoles": "Search roles...",
+    "savePermissions": "Save Permissions",
+    "permissionsTitle": "Permissions",
+    "modulesCount": "modules",
+    "selectRoleHint": {
+      "title": "Select a role",
+      "desc": "Select a role from the left panel to view and edit its permissions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "roles": {
+      "title": "Roles",
+      "total": "Total",
+      "role": "role",
+      "create": "New role",
+      "noRoles": "No roles",
+      "noRolesFiltered": "Not found",
+      "created": "Role created successfully",
+      "updated": "Role updated successfully",
+      "deleted": "Role deleted",
+      "deleteTitle": "Delete role",
+      "deleteDesc": "Are you sure you want to delete this role?",
+      "form": {
+        "name": "Role name",
+        "status": "Status"
+      },
+      "createModal": {
+        "title": "Create new role"
+      },
+      "editModal": {
+        "title": "Edit role"
+      }
+    },
+    "permissions": {
+      "title": "Permissions",
+      "total": "Total",
+      "permission": "permission",
+      "create": "Create permission",
+      "noPermissions": "No permissions found",
+      "saved": "Permissions saved successfully",
+      "saveError": "Error saving permissions",
+      "created": "Permission created successfully",
+      "updated": "Permission updated successfully",
+      "deleted": "Permission deleted",
+      "deleteTitle": "Delete permission",
+      "deleteDesc": "Are you sure you want to delete this permission?",
+      "form": {
+        "module": "Module",
+        "name": "Permission name",
+        "detail": "Permission detail"
+      },
+      "createModal": {
+        "title": "Create new permission"
+      },
+      "editModal": {
+        "title": "Edit permission"
+      }
+    },
+    "modules": {
+      "dashboard": "Dashboard",
+      "manage": "Management",
+      "mtk": "MTK",
+      "complex": "Complex",
+      "building": "Building",
+      "block": "Block",
+      "property": "Property",
+      "resident": "Resident",
+      "resident-group": "Resident group",
+      "finance": "Finance",
+      "invoice": "Invoice",
+      "service": "Service",
+      "permission": "Permissions",
+      "role": "Roles",
+      "property_service": "Property service",
+      "user": "User"
+    },
+    "actions": {
+      "view": "View",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "assign-permissions": "Assign permissions",
+      "edit-or-create": "Create / edit",
+      "bind": "Bind"
+    },
+    "rolesDict": {
+      "Root": "Root",
+      "Moderator": "Moderator",
+      "Admin": "Admin",
+      "Office manager": "Office manager",
+      "Complex manager": "Complex manager",
+      "Accountant": "Accountant",
+      "Complex accountant": "Complex accountant",
+      "Resident": "Resident",
+      "Mtk manager": "MTK manager"
     }
   },
   "userRights": {

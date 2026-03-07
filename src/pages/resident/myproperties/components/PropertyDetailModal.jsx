@@ -15,10 +15,12 @@ import {
   HomeIcon,
   CalendarIcon,
   CurrencyDollarIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import myPropertiesAPI from "../api";
 import { useComplexColor } from "@/hooks/useComplexColor";
+import { AddBalanceCashModal } from "@/components/finance/AddBalanceCashModal";
 
 export function PropertyDetailModal({ open, onClose, propertyId }) {
   const { t } = useTranslation();
@@ -26,6 +28,7 @@ export function PropertyDetailModal({ open, onClose, propertyId }) {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
 
   useEffect(() => {
     if (open && propertyId) {
@@ -101,6 +104,7 @@ export function PropertyDetailModal({ open, onClose, propertyId }) {
   };
 
   return (
+    <>
     <Dialog
       open={open}
       handler={onClose}
@@ -356,19 +360,44 @@ export function PropertyDetailModal({ open, onClose, propertyId }) {
         >
           {t("buttons.close") || "Bağla"}
         </Button>
-        {property && property.id && (
-          <Button
-            variant="text"
-            size="sm"
-            onClick={() => {
-              window.location.href = `/resident/my-properties/${property.id}`;
-            }}
-          >
-            {t("properties.goTo") || "Keçid et"}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {property && (
+            <Button
+              variant="filled"
+              color="green"
+              size="sm"
+              className="flex items-center gap-1.5"
+              onClick={() => setBalanceModalOpen(true)}
+            >
+              <BanknotesIcon className="h-4 w-4" />
+              {t("addBalance.title") || "Balans əlavə et"}
+            </Button>
+          )}
+          {property && property.id && (
+            <Button
+              variant="text"
+              size="sm"
+              onClick={() => {
+                window.location.href = `/resident/my-properties/${property.id}`;
+              }}
+            >
+              {t("properties.goTo") || "Keçid et"}
+            </Button>
+          )}
+        </div>
       </DialogFooter>
     </Dialog>
+
+    <AddBalanceCashModal
+      open={balanceModalOpen}
+      onClose={() => setBalanceModalOpen(false)}
+      propertyId={property?.id}
+      propertyName={property?.name}
+      onSuccess={() => {
+        fetchPropertyDetails();
+      }}
+    />
+  </>
   );
 }
 

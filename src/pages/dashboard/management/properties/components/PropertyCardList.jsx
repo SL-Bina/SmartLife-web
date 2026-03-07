@@ -1,8 +1,8 @@
 import React from "react";
 import { Card, CardBody, Typography, Chip, IconButton, Menu, MenuHandler, MenuList, MenuItem } from "@material-tailwind/react";
-import { EllipsisVerticalIcon, EyeIcon, PencilIcon, TrashIcon, CurrencyDollarIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, EyeIcon, PencilIcon, TrashIcon, CurrencyDollarIcon, CheckCircleIcon, XCircleIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 
-export function PropertyCardList({ items, loading, onView, onEdit, onDelete, onServiceFee, onSelect, selectedPropertyId }) {
+export function PropertyCardList({ items, loading, onView, onEdit, onDelete, onServiceFee, onAddBalance, onSelect, selectedPropertyId }) {
   const getStatusBadge = (status) => {
     const statusMap = {
       active: { label: "Aktiv", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" },
@@ -84,6 +84,10 @@ export function PropertyCardList({ items, loading, onView, onEdit, onDelete, onS
                       Servis haqqı
                     </MenuItem>
                   )}
+                  <MenuItem onClick={() => onAddBalance?.(item)} className="dark:hover:bg-gray-700 flex items-center gap-2 text-green-600 dark:text-green-400">
+                    <BanknotesIcon className="h-4 w-4" />
+                    Balans əlavə et
+                  </MenuItem>
                   <MenuItem onClick={() => onDelete(item)} className="dark:text-gray-300 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400">
                     <TrashIcon className="h-4 w-4" />
                     Sil

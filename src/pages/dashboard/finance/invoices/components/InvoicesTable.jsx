@@ -1,9 +1,9 @@
 import React from "react";
 import { Typography, Chip, IconButton, Menu, MenuHandler, MenuList, MenuItem } from "@material-tailwind/react";
-import { EllipsisVerticalIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, EyeIcon, CreditCardIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 
-export function InvoicesTable({ invoices, loading, onView, onEdit, onDelete }) {
+export function InvoicesTable({ invoices, loading, onView, onEdit, onDelete, onPay }) {
   const { t } = useTranslation();
 
   const getStatusColor = (status) => {
@@ -55,7 +55,7 @@ export function InvoicesTable({ invoices, loading, onView, onEdit, onDelete }) {
     return (
       <div className="flex items-center justify-center py-10">
         <Typography variant="small" className="text-gray-500 dark:text-gray-400">
-          Faktura tapılmadı
+          {t("invoices.noData") || "Faktura tapılmadı"}
         </Typography>
       </div>
     );
@@ -202,6 +202,12 @@ export function InvoicesTable({ invoices, loading, onView, onEdit, onDelete }) {
                       <MenuItem onClick={() => onEdit(invoice)} className="dark:text-gray-300 dark:hover:bg-gray-700">
                         {t("invoices.actions.edit") || "Redaktə et"}
                       </MenuItem>
+                      {onPay && (
+                        <MenuItem onClick={() => onPay(invoice)} className="dark:hover:bg-gray-700 flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                          <CreditCardIcon className="h-4 w-4" />
+                          {t("invoices.actions.pay") || "Ödə"}
+                        </MenuItem>
+                      )}
                       <MenuItem onClick={() => onDelete(invoice)} className="dark:text-gray-300 dark:hover:bg-gray-700">
                         {t("invoices.actions.delete") || "Sil"}
                       </MenuItem>

@@ -4,28 +4,12 @@ import {
   Button, Input, Select, Option, Typography,
 } from "@material-tailwind/react";
 import { XMarkIcon, MagnifyingGlassIcon, FunnelIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 import { AsyncSearchSelect } from "@/components/ui/AsyncSearchSelect";
 import { EMPTY_FILTERS } from "../../hooks/useInvoicesFilters";
 
-const INVOICE_TYPES = [
-  { value: "daily",      label: "Günlük" },
-  { value: "weekly",     label: "Həftəlik" },
-  { value: "monthly",    label: "Aylıq" },
-  { value: "quarterly",  label: "Rüblük" },
-  { value: "biannually", label: "Yarımillik" },
-  { value: "yearly",     label: "İllik" },
-  { value: "one_time",   label: "Bir dəfəlik" },
-];
-
-const INVOICE_STATUSES = [
-  { value: "paid",     label: "Ödənilib" },
-  { value: "not_paid", label: "Ödənilməmiş" },
-  { value: "pending",  label: "Gözləyir" },
-  { value: "overdue",  label: "Gecikmiş" },
-  { value: "declined", label: "Rədd edilib" },
-  { value: "draft",    label: "Qaralama" },
-  { value: "pre_paid", label: "Ön ödəniş" },
-];
+const INVOICE_TYPE_VALUES = ["daily", "weekly", "monthly", "quarterly", "biannually", "yearly", "one_time"];
+const INVOICE_STATUS_VALUES = ["paid", "not_paid", "pending", "overdue", "declined", "draft", "pre_paid"];
 
 // Kaskad seçim üçün boş state
 const EMPTY_CASCADE = {
@@ -37,6 +21,7 @@ const EMPTY_CASCADE = {
 };
 
 export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = {} }) {
+  const { t } = useTranslation();
   const [f, setF]         = useState(EMPTY_FILTERS);
   const [cas, setCas]     = useState(EMPTY_CASCADE); // kaskad seçimlər
   const [svc, setSvc]     = useState({ id: null, label: "" }); // xidmət
@@ -99,7 +84,7 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-5 w-5 text-blue-500" />
           <Typography variant="h5" className="font-bold dark:text-white">
-            Ətraflı Axtarış
+            {t("invoices.searchModal.title") || "Ətraflı Axtarış"}
           </Typography>
         </div>
         <div className="cursor-pointer p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-all" onClick={onClose}>
@@ -113,42 +98,42 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
           {/* ── Ümumi filterlər ── */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
-              label="Faktura ID"
+              label={t("invoices.searchModal.invoiceId") || "Faktura ID"}
               value={f.invoiceId}
               onChange={(e) => set("invoiceId", e.target.value)}
               {...inputProps}
             />
             <Select
-              label="Status"
+              label={t("invoices.table.status") || "Status"}
               value={f.status}
               onChange={(val) => set("status", val || "")}
               className="dark:text-gray-200"
               labelProps={{ className: "dark:text-gray-300" }}
             >
-              <Option value="">Hamısı</Option>
-              {INVOICE_STATUSES.map((s) => (
-                <Option key={s.value} value={s.value}>{s.label}</Option>
+              <Option value="">{t("invoices.searchModal.all") || "Hamısı"}</Option>
+              {INVOICE_STATUS_VALUES.map((v) => (
+                <Option key={v} value={v}>{t(`invoices.status.${v}`) || v}</Option>
               ))}
             </Select>
             <Select
-              label="Növ (type)"
+              label={t("invoices.searchModal.type") || "Növ"}
               value={f.type}
               onChange={(val) => set("type", val || "")}
               className="dark:text-gray-200"
               labelProps={{ className: "dark:text-gray-300" }}
             >
-              <Option value="">Hamısı</Option>
-              {INVOICE_TYPES.map((tp) => (
-                <Option key={tp.value} value={tp.value}>{tp.label}</Option>
+              <Option value="">{t("invoices.searchModal.all") || "Hamısı"}</Option>
+              {INVOICE_TYPE_VALUES.map((v) => (
+                <Option key={v} value={v}>{t(`invoices.types.${v}`) || v}</Option>
               ))}
             </Select>
           </div>
 
           {/* ── Xidmət (API-dən) ── */}
           <div>
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">Xidmət</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">{t("invoices.searchModal.service") || "Xidmət"}</p>
             <AsyncSearchSelect
-              label="Xidmət seçin"
+              label={t("invoices.searchModal.selectService") || "Xidmət seçin"}
               endpoint="/module/services/list"
               value={svc.id}
               selectedLabel={svc.label}
@@ -160,7 +145,7 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
           </div>
 
           {/* ── Ayırıcı ── */}
-          <Divider label="Mənzil seçimi (kaskad)" />
+          <Divider label={t("invoices.searchModal.cascadeSection") || "Mənzil seçimi"} />
 
           {/* ── MTK → Complex → Bina → Blok → Mənzil ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -234,32 +219,32 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
           />
 
           {/* ── Tarix aralıqları ── */}
-          <Divider label="Tarix aralıqları" />
+          <Divider label={t("invoices.searchModal.dateRangesSection") || "Tarix aralıqları"} />
 
           <div>
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Ödəniş tarixi aralığı (paid_at)</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">{t("invoices.searchModal.paymentDateRange") || "Ödəniş tarixi aralığı"}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input label="Başlanğıc" type="date" value={f.paidAtFrom} onChange={(e) => set("paidAtFrom", e.target.value)} {...inputProps} />
-              <Input label="Son" type="date" value={f.paidAtTo} onChange={(e) => set("paidAtTo", e.target.value)} {...inputProps} />
+              <Input label={t("invoices.searchModal.dateFrom") || "Başlanğıc"} type="date" value={f.paidAtFrom} onChange={(e) => set("paidAtFrom", e.target.value)} {...inputProps} />
+              <Input label={t("invoices.searchModal.dateTo") || "Son"} type="date" value={f.paidAtTo} onChange={(e) => set("paidAtTo", e.target.value)} {...inputProps} />
             </div>
           </div>
 
           {/* ── Məbləğ aralıqları ── */}
-          <Divider label="Məbləğ aralıqları" />
+          <Divider label={t("invoices.searchModal.amountRangesSection") || "Məbləğ aralıqları"} />
 
           <div>
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Faktura məbləği (₼)</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">{t("invoices.searchModal.invoiceAmount") || "Faktura məbləği (₼)"}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input label="Minimum" type="number" min="0" value={f.amountFrom} onChange={(e) => set("amountFrom", e.target.value)} {...inputProps} />
-              <Input label="Maksimum" type="number" min="0" value={f.amountTo} onChange={(e) => set("amountTo", e.target.value)} {...inputProps} />
+              <Input label={t("invoices.searchModal.min") || "Minimum"} type="number" min="0" value={f.amountFrom} onChange={(e) => set("amountFrom", e.target.value)} {...inputProps} />
+              <Input label={t("invoices.searchModal.max") || "Maksimum"} type="number" min="0" value={f.amountTo} onChange={(e) => set("amountTo", e.target.value)} {...inputProps} />
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Ödənilmiş məbləğ (₼)</p>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">{t("invoices.searchModal.paidAmountLabel") || "Ödənilmiş məbləğ (₼)"}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input label="Minimum" type="number" min="0" value={f.amountPaidFrom} onChange={(e) => set("amountPaidFrom", e.target.value)} {...inputProps} />
-              <Input label="Maksimum" type="number" min="0" value={f.amountPaidTo} onChange={(e) => set("amountPaidTo", e.target.value)} {...inputProps} />
+              <Input label={t("invoices.searchModal.min") || "Minimum"} type="number" min="0" value={f.amountPaidFrom} onChange={(e) => set("amountPaidFrom", e.target.value)} {...inputProps} />
+              <Input label={t("invoices.searchModal.max") || "Maksimum"} type="number" min="0" value={f.amountPaidTo} onChange={(e) => set("amountPaidTo", e.target.value)} {...inputProps} />
             </div>
           </div>
 
@@ -267,11 +252,11 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
       </DialogBody>
 
       <DialogFooter className="border-t border-gray-200 dark:border-gray-700 dark:bg-gray-800 gap-2">
-        <Button variant="text" color="gray" onClick={handleReset}>Təmizlə</Button>
-        <Button variant="text" color="gray" onClick={onClose}>Ləğv et</Button>
+        <Button variant="text" color="gray" onClick={handleReset}>{t("invoices.searchModal.reset") || "Təmizlə"}</Button>
+        <Button variant="text" color="gray" onClick={onClose}>{t("buttons.cancel") || "Ləğv et"}</Button>
         <Button variant="filled" color="blue" onClick={handleSearch} className="flex items-center gap-2">
           <MagnifyingGlassIcon className="h-4 w-4" />
-          Axtar
+          {t("invoices.searchModal.search") || "Axtar"}
         </Button>
       </DialogFooter>
     </Dialog>

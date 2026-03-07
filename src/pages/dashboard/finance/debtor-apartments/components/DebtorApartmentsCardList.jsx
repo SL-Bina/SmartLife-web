@@ -4,7 +4,7 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import { useMtkColor } from "@/store/hooks/useMtkColor";
 
-export function DebtorApartmentsCardList({ apartments, onView, onPay, onInvoices }) {
+export function DebtorApartmentsCardList({ apartments, onView, onPay }) {
   const { getRgba: getMtkRgba } = useMtkColor();
   const { t } = useTranslation();
 
@@ -29,9 +29,6 @@ export function DebtorApartmentsCardList({ apartments, onView, onPay, onInvoices
                   </MenuItem>
                   <MenuItem onClick={() => onPay(row)} className="dark:text-gray-300 dark:hover:bg-gray-700">
                     {t("debtorApartments.actions.pay")}
-                  </MenuItem>
-                  <MenuItem onClick={() => onInvoices(row)} className="dark:text-gray-300 dark:hover:bg-gray-700">
-                    {t("debtorApartments.actions.invoices")}
                   </MenuItem>
                 </MenuList>
               </Menu>

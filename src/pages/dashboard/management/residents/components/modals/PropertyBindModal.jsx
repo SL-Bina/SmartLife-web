@@ -5,7 +5,7 @@ import {
 } from "@material-tailwind/react";
 import { 
   XMarkIcon, HomeIcon, LinkIcon, BuildingOfficeIcon,
-  Square3Stack3DIcon, TrashIcon, PlusIcon, CheckCircleIcon
+  Square3Stack3DIcon, TrashIcon, PlusIcon, CheckCircleIcon, BanknotesIcon
 } from "@heroicons/react/24/outline";
 import { AsyncSearchSelect } from "@/components/ui/AsyncSearchSelect";
 import DynamicToast from "@/components/DynamicToast";
@@ -20,7 +20,8 @@ export function PropertyBindModal({
   residentId,
   residentName = "",
   residentProperties = [],
-  onSuccess
+  onSuccess,
+  onAddBalance,
 }) {
 
   const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
@@ -417,17 +418,33 @@ export function PropertyBindModal({
                               className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0"
                             />
                           </div>
-                          <Button
-                            size="sm"
-                            variant="gradient"
-                            color="red"
-                            onClick={() => setUnbindTarget(p)}
-                            disabled={saving}
-                            className="flex items-center gap-2 hover:hover:" style={{ background: getActiveGradient(0.9, 0.7) }}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                            Bağlantını sil
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="outlined"
+                              color="green"
+                              onClick={() => onAddBalance?.(
+                                p.property_id,
+                                p.property?.name || p.property?.apartment_number || `Mənzil #${p.property_id}`
+                              )}
+                              disabled={saving}
+                              className="flex items-center gap-1.5"
+                            >
+                              <BanknotesIcon className="h-4 w-4" />
+                              Balans əlavə et
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="gradient"
+                              color="red"
+                              onClick={() => setUnbindTarget(p)}
+                              disabled={saving}
+                              className="flex items-center gap-2 hover:hover:" style={{ background: getActiveGradient(0.9, 0.7) }}
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                              Bağlantını sil
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </CardBody>

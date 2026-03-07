@@ -1,15 +1,16 @@
 import React from "react";
 import { Card, CardBody, Typography, Chip, IconButton, Menu, MenuHandler, MenuList, MenuItem } from "@material-tailwind/react";
-import { EllipsisVerticalIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, EyeIcon, CreditCardIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 
-export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }) {
+export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete, onPay }) {
   const { t } = useTranslation();
 
   const getStatusColor = (status) => {
     const statusMap = {
       paid: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
       not_paid: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+      unpaid: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
       pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
       overdue: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
       declined: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
@@ -19,18 +20,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
     return statusMap[status] || statusMap.not_paid;
   };
 
-  const getStatusLabel = (status) => {
-    const statusMap = {
-      paid: "Ödənilib",
-      not_paid: "Ödənilməmiş",
-      pending: "Gözləyir",
-      overdue: "Gecikmiş",
-      declined: "Rədd edilib",
-      draft: "Qaralama",
-      pre_paid: "Ön ödəniş",
-    };
-    return statusMap[status] || status;
-  };
+  const getStatusLabel = (status) => t(`invoices.status.${status}`) || status;
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -51,7 +41,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
     return (
       <div className="flex items-center justify-center py-10 lg:hidden">
         <Typography variant="small" className="text-gray-500 dark:text-gray-400">
-          Yüklənir...
+          {t("invoices.actions.loading") || "Yüklənir..."}
         </Typography>
       </div>
     );
@@ -61,7 +51,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
     return (
       <div className="flex items-center justify-center py-10 lg:hidden">
         <Typography variant="small" className="text-gray-500 dark:text-gray-400">
-          Faktura tapılmadı
+          {t("invoices.noData") || "Faktura tapılmadı"}
         </Typography>
       </div>
     );
@@ -91,13 +81,19 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                   <MenuList className="dark:bg-gray-800 dark:border-gray-800">
                     <MenuItem onClick={() => onView(invoice)} className="dark:text-gray-300 dark:hover:bg-gray-700 flex items-center gap-2">
                       <EyeIcon className="h-4 w-4" />
-                      Bax
+                      {t("invoices.actions.view") || "Bax"}
                     </MenuItem>
                     <MenuItem onClick={() => onEdit(invoice)} className="dark:text-gray-300 dark:hover:bg-gray-700">
-                      Redaktə et
+                      {t("invoices.actions.edit") || "Redaktə et"}
                     </MenuItem>
+                    {onPay && (
+                      <MenuItem onClick={() => onPay(invoice)} className="dark:hover:bg-gray-700 flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                        <CreditCardIcon className="h-4 w-4" />
+                        {t("invoices.actions.pay") || "Ödə"}
+                      </MenuItem>
+                    )}
                     <MenuItem onClick={() => onDelete(invoice)} className="dark:text-gray-300 dark:hover:bg-gray-700">
-                      Sil
+                      {t("invoices.actions.delete") || "Sil"}
                     </MenuItem>
                   </MenuList>
                 </Menu>
@@ -106,7 +102,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
               <div className="space-y-2">
                 <div>
                   <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                    Xidmət
+                    {t("invoices.table.service") || "Xidmət"}
                   </Typography>
                   <Typography variant="small" className="text-gray-700 dark:text-gray-300 font-semibold">
                     {invoice.service?.name || "-"}
@@ -115,7 +111,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
 
                 <div>
                   <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                    Mənzil
+                    {t("invoices.table.property") || "Mənzil"}
                   </Typography>
                   <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                     {invoice.property?.name || invoice.property?.meta?.apartment_number || invoice.property?.apartment_number || (invoice.property?.id != null ? `Mənzil #${invoice.property.id}` : invoice.property_id != null ? `Mənzil #${invoice.property_id}` : "-")}
@@ -130,7 +126,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                 {invoice.residents && invoice.residents.length > 0 && (
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Sakinlər
+                      {t("invoices.table.residents") || "Sakinlər"}
                     </Typography>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {invoice.residents.slice(0, 3).map((resident) => (
@@ -140,7 +136,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                       ))}
                       {invoice.residents.length > 3 && (
                         <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                          +{invoice.residents.length - 3} daha
+                          +{invoice.residents.length - 3} {t("invoices.mobile.more") || "daha"}
                         </Typography>
                       )}
                     </div>
@@ -150,7 +146,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Məbləğ
+                      {t("invoices.table.amount") || "Məbləğ"}
                     </Typography>
                     <Typography variant="small" className="text-gray-700 dark:text-gray-300 font-semibold">
                       {parseFloat(invoice.amount || 0).toFixed(2)} ₼
@@ -158,7 +154,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                   </div>
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Ödənilmiş
+                      {t("invoices.table.paidAmount") || "Ödənilmiş"}
                     </Typography>
                     <Typography variant="small" className="text-green-600 dark:text-green-400 font-semibold">
                       {parseFloat(invoice.amount_paid || 0).toFixed(2)} ₼
@@ -166,7 +162,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                   </div>
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Qalıq
+                      {t("invoices.table.remaining") || "Qalıq"}
                     </Typography>
                     <Typography
                       variant="small"
@@ -177,7 +173,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                   </div>
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Status
+                      {t("invoices.table.status") || "Status"}
                     </Typography>
                     <Chip
                       value={getStatusLabel(invoice.status)}
@@ -190,7 +186,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Başlama tarixi
+                      {t("invoices.table.startDate") || "Başlama tarixi"}
                     </Typography>
                     <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                       {formatDate(invoice.start_date)}
@@ -198,7 +194,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                   </div>
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Son tarix
+                      {t("invoices.table.dueDate") || "Son tarix"}
                     </Typography>
                     <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                       {formatDate(invoice.due_date)}
@@ -209,7 +205,7 @@ export function InvoicesCardList({ invoices, loading, onView, onEdit, onDelete }
                 {invoice.payment_method?.name && (
                   <div>
                     <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs">
-                      Ödəniş metodu
+                      {t("invoices.table.paymentMethod") || "Ödəniş metodu"}
                     </Typography>
                     <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                       {invoice.payment_method.name}
