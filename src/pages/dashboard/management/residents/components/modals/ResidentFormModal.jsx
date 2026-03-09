@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Button, Typography } from "@material-tailwind/react";
-import { XMarkIcon, UserIcon, ExclamationTriangleIcon, LinkIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, UserIcon } from "@heroicons/react/24/outline";
+import { ResidentExistsModal } from "./ResidentExistsModal";
 import { CustomInput } from "@/components/ui/CustomInput";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import DynamicToast from "@/components/DynamicToast";
@@ -29,6 +30,13 @@ export function ResidentFormModal({
   const [existsPrompt, setExistsPrompt] = useState(false); // 426 — resident already exists
   const [lastFormData, setLastFormData] = useState(null);
   const [toast, setToast] = useState({ open: false, type: "info", message: "", title: "" });
+  // Track whether we've already auto-populated from Redux; reset each time modal opens
+  const autoPopulatedRef = useRef({ mtk: false, complex: false });
+  // Keep updateField callable in effects without adding 'form' to their deps
+  const updateFieldRef = useRef(null);
+  useEffect(() => {
+    updateFieldRef.current = form?.updateField;
+  });
   const [mtks, setMtks] = useState([]);
   const [complexes, setComplexes] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -86,16 +94,24 @@ export function ResidentFormModal({
   }, [open]);
 
   useEffect(() => {
-    if (open && mode === "create" && mtkId && mtks.length > 0 && !form?.formData?.property?.mtk_id) {
-      form?.updateField("property.mtk_id", mtkId);
+    if (!open) {
+      autoPopulatedRef.current = { mtk: false, complex: false };
     }
-  }, [open, mode, mtkId, mtks.length, form]);
+  }, [open]);
 
   useEffect(() => {
-    if (open && mode === "create" && complexId && complexes.length > 0 && !form?.formData?.property?.complex_id) {
-      form?.updateField("property.complex_id", complexId);
+    if (open && mode === "create" && mtkId && mtks.length > 0 && !autoPopulatedRef.current.mtk) {
+      updateFieldRef.current?.("property.mtk_id", mtkId);
+      autoPopulatedRef.current.mtk = true;
     }
-  }, [open, mode, complexId, complexes.length, form]);
+  }, [open, mode, mtkId, mtks.length]);
+
+  useEffect(() => {
+    if (open && mode === "create" && complexId && complexes.length > 0 && !autoPopulatedRef.current.complex) {
+      updateFieldRef.current?.("property.complex_id", complexId);
+      autoPopulatedRef.current.complex = true;
+    }
+  }, [open, mode, complexId, complexes.length]);
 
   useEffect(() => {
     if (open && formMtkId) {
@@ -519,45 +535,6 @@ export function ResidentFormModal({
             </div>
           </DialogBody>
 
-          {/* 426 — Resident already exists prompt */}
-          {existsPrompt && (
-            <div className="mx-6 mb-4 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <Typography variant="small" className="font-bold text-amber-800 dark:text-amber-300">
-                    Sakin artıq sistemdə mövcuddur
-                  </Typography>
-                  <Typography variant="small" className="text-amber-700 dark:text-amber-400 mt-0.5">
-                    Bu məlumatlarla uyğun sakin tapıldı. Nə etmək istəyirsiniz?
-                  </Typography>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  size="sm"
-                  variant="outlined"
-                  disabled={saving}
-                  className="flex items-center gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 flex-1 justify-center"
-                  onClick={() => handleBindExists(true)}
-                >
-                  <LinkIcon className="h-4 w-4" />
-                  Qeyd etdiyiniz mənzilə bağlayaq
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outlined"
-                  disabled={saving}
-                  className="flex items-center gap-2 border-green-500 text-green-600 hover:bg-green-50 dark:border-green-400 dark:text-green-400 flex-1 justify-center"
-                  onClick={() => handleBindExists(false)}
-                >
-                  <UserPlusIcon className="h-4 w-4" />
-                  Bu məlumatlara uyğun yeni sakin əlavə et
-                </Button>
-              </div>
-            </div>
-          )}
-
           <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-between">
             <Button
               variant="outlined"
@@ -566,8 +543,7 @@ export function ResidentFormModal({
             >
               Ləğv et
             </Button>
-            {!existsPrompt && (
-              <Button
+            <Button
                 type="submit"
                 disabled={saving || !!errorText || (isEdit && !form.hasChanges)}
                 className="text-white"
@@ -575,10 +551,16 @@ export function ResidentFormModal({
               >
                 {saving ? "Yadda saxlanılır..." : isEdit ? "Yenilə" : "Əlavə et"}
               </Button>
-            )}
           </DialogFooter>
         </form>
       </Dialog>
+
+      <ResidentExistsModal
+        open={existsPrompt}
+        onClose={() => { setExistsPrompt(false); setLastFormData(null); }}
+        onChoose={handleBindExists}
+        saving={saving}
+      />
 
       <DynamicToast
         open={toast.open}

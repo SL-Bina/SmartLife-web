@@ -43,7 +43,7 @@ export function PropertyBindModal({
   const showToast = (type, message, title = "") =>
     setToast({ open: true, type, message, title });
 
-  const canBind = mtkId && complexId && buildingId && propertyId;
+  const canBind = mtkId && complexId && propertyId;
 
   const complexSearchParams = useMemo(() => {
     const params = {};
@@ -158,10 +158,8 @@ export function PropertyBindModal({
       const payload = {
         mtk_id: mtkId,
         complex_id: complexId,
-        building_id: buildingId,
         property_id: propertyId,
       };
-      if (blockId) payload.block_id = blockId;
       await residentAPI.bindProperty(residentId, payload);
       showToast("success", "Bağlandı", "Uğurlu");
       onSuccess?.();
@@ -275,11 +273,11 @@ export function PropertyBindModal({
               />
             </div>
 
-            {/* Row 2: Building + Block */}
+            {/* Row 2: Building + Block (optional filters) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <AsyncSearchSelect
                 key={buildingSelectKey}
-                label="Bina"
+                label="Bina (istəyə bağlı)"
                 value={buildingId}
                 onChange={handleBuildingChange}
                 endpoint="/search/module/building"
@@ -308,13 +306,13 @@ export function PropertyBindModal({
             <div className="mb-6">
               <AsyncSearchSelect
                 key={propertySelectKey}
-                label="Mənzil"
+                label="Mənzil *"
                 value={propertyId}
                 onChange={handlePropertyChange}
                 endpoint="/search/module/property"
                 searchParams={propertySearchParams}
                 selectedLabel={selectedLabels.property}
-                disabled={!buildingId}
+                disabled={!complexId}
                 placeholder="Mənzil seçin"
                 searchPlaceholder="Mənzil axtar..."
               />

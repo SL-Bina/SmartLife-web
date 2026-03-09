@@ -150,6 +150,11 @@ export function ResidentTable({ items = [], loading, onView, onEdit, onBind, onD
                 </Typography>
               </th>
               <th className="px-4 xl:px-6 py-3 xl:py-4 text-left">
+                <Typography variant="small" className="font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs">
+                  Mənzillər
+                </Typography>
+              </th>
+              <th className="px-4 xl:px-6 py-3 xl:py-4 text-left">
                 <button
                   onClick={() => handleSort("status")}
                   className="flex items-center gap-1 hover:opacity-70 transition-opacity"
@@ -198,6 +203,24 @@ export function ResidentTable({ items = [], loading, onView, onEdit, onBind, onD
                   <Typography variant="small" className="text-gray-600 dark:text-gray-400">
                     {item.type || "-"}
                   </Typography>
+                </td>
+                <td className="px-4 xl:px-6 py-3 xl:py-4">
+                  {item.properties && item.properties.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {item.properties.slice(0, 2).map((p) => (
+                        <span key={p.id} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                          {p.name || `#${p.id}`}
+                        </span>
+                      ))}
+                      {item.properties.length > 2 && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                          +{item.properties.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <Typography variant="small" className="text-gray-400 dark:text-gray-500">-</Typography>
+                  )}
                 </td>
                 <td className="px-4 xl:px-6 py-3 xl:py-4">
                   <span
