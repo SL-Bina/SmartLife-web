@@ -1,5 +1,5 @@
 {
-  "name": "SmartLife",
+  "name": "smartlife",
   "private": true,
   "version": "2.1.0",
   "type": "module",
@@ -17,7 +17,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@vis.gl/react-google-maps": "^1.7.1",
     "apexcharts": "3.44.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.6",
     "framer-motion": "^12.23.24",
     "i18next": "^25.6.2",
     "i18next-browser-languagedetector": "^8.2.0",
@@ -51,5 +51,22 @@
     "prettier-plugin-tailwindcss": "0.5.6",
     "tailwindcss": "3.3.4",
     "vite": "4.5.0"
-  }
+  },
+  "main": "test2.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SL-Bina/Smartlife.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SL-Bina/Smartlife/issues"
+  },
+  "homepage": "https://github.com/SL-Bina/Smartlife#readme",
+  "description": ""
 }

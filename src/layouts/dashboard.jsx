@@ -20,8 +20,16 @@ import { NotFound } from "@/pages/404";
 import { getFirstActivePath, buildParentPathMap } from "@/utils/getFirstActivePath";
 import { useNotificationsSocket } from "@/hooks/useNotificationsSocket";
 import { useDynamicToast } from "@/hooks/useDynamicToast";
+import { addNotification } from "@/store/slices/notificationsSlice";
 import DynamicToast from "@/components/DynamicToast";
 import "./dashboard.css";
+
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
 
 function ProtectedRoute({ element, allowedRoles, moduleName, fallbackPath }) {
   const { user, isInitialized, hasModuleAccess } = useAuth();
@@ -173,29 +181,25 @@ export function Dashboard() {
 
   const { toast: wsToast, showToast: showWsToast, closeToast: closeWsToast } = useDynamicToast();
   const navigate = useNavigate();
+  const token = getCookie('smartlife_token');
 
   useDocumentTitle();
 
   // Real-time WebSocket notifications
   useNotificationsSocket(
     user,
+    token,
     useCallback((notif) => {
+      // Redux store-a əlavə et (bell badge yenilənsin)
+      dispatch(addNotification(notif));
+      // Toast göstər
       showWsToast({
         type: notif.type === "warning" ? "info" : (notif.type || "info"),
         title: notif.title,
         message: notif.message,
         duration: 5000,
       });
-    }, [showWsToast]),
-    useCallback(() => {
-      const name = user?.firstName || user?.name || "İstifadəçi";
-      showWsToast({
-        type: "success",
-        title: `Xoş gəldiniz, ${name}!`,
-        message: "Sistem bildirişləriniz aktivdir.",
-        duration: 4000,
-      });
-    }, [user?.id, showWsToast])
+    }, [dispatch, showWsToast])
   );
 
   useEffect(() => {

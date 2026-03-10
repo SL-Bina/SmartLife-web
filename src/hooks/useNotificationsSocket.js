@@ -1,131 +1,150 @@
-import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
-import Pusher from "pusher-js";
-import { addNotification } from "@/store/slices/notificationsSlice";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-/**
- * WebSocket Soketi üçün konfiqurasiya.
- *
- * Server tərəfində Nginx-də /ws/ location block lazımdır:
- *   location /ws/ {
- *       proxy_pass http://127.0.0.1:8080/;
- *       proxy_http_version 1.1;
- *       proxy_set_header Upgrade $http_upgrade;
- *       proxy_set_header Connection "upgrade";
- *       proxy_set_header Host $host;
- *       proxy_read_timeout 3600;
- *       proxy_send_timeout 3600;
- *   }
- *
- *   Bax: nginx-ws-proxy.conf
- */
-const WS_HOST = "api.smartlife.az";
-const WS_PORT = 443;
-const WS_PATH = "/ws";
-const AUTH_ENDPOINT = "https://api.smartlife.az/api/broadcasting/auth";
 const APP_KEY = "rv_k8Xp2mNqL5vRtY9wZjH3sBcD";
-const FORCE_TLS = true;
+const WS_BASE = `wss://api.smartlife.az/app/${APP_KEY}`;
+const WS_URL = `${WS_BASE}?protocol=7&client=js&version=8.4.0`;
+const AUTH_URL = "https://api.smartlife.az/api/broadcasting/auth";
 
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-  return null;
-};
+const MAX_RETRIES = 10;
+const BASE_DELAY = 1000;   // 1s
+const MAX_DELAY = 30000;   // 30s
 
-/**
- * Connects via Pusher.js to the Soketi-compatible server and listens for
- * `notification.sent` events on the user's private channel.
- *
- * @param {Object|null} user           – Redux auth user ({ id, is_resident })
- * @param {Function}    onNotification – called with the parsed notif payload
- * @param {Function}    onConnected    – called once after successful channel subscription
- */
-export function useNotificationsSocket(user, onNotification, onConnected) {
-  const dispatch = useDispatch();
-  const pusherRef = useRef(null);
+export function useNotificationsSocket(user, token, onNotification) {
+  const wsRef = useRef(null);
+  const retriesRef = useRef(0);
+  const reconnectTimerRef = useRef(null);
+  const mountedRef = useRef(true);
   const onNotificationRef = useRef(onNotification);
-  const onConnectedRef = useRef(onConnected);
-  onNotificationRef.current = onNotification;
-  onConnectedRef.current = onConnected;
+  const [isConnected, setIsConnected] = useState(false);
 
+  // Callback ref-ə saxla ki dependency array-ə düşməsin
   useEffect(() => {
-    if (!user?.id) return;
+    onNotificationRef.current = onNotification;
+  }, [onNotification]);
 
-    const token = getCookie("smartlife_token");
-    if (!token) return;
+  const connect = useCallback(() => {
+    if (!mountedRef.current) return;
 
     const accountType = user.is_resident ? "resident" : "user";
     const channelName = `private-notifications.${accountType}.${user.id}`;
 
-    // Initialize Pusher client (Soketi-compatible)
-    const pusher = new Pusher(APP_KEY, {
-      wsHost: WS_HOST,
-      wsPort: WS_PORT,
-      wssPort: WS_PORT,
-      wsPath: WS_PATH,
-      forceTLS: FORCE_TLS,
-      disableStats: true,
-      enabledTransports: ["ws", "wss"],
-      cluster: "mt1",
-      authEndpoint: AUTH_ENDPOINT,
-      auth: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      },
-      // Reconnect strategiyası
-      activityTimeout: 120000,
-      pongTimeout: 30000,
-    });
+    // Əvvəlki bağlantını bağla
+    if (wsRef.current) {
+      try { wsRef.current.close(); } catch { /* ignore */ }
+    }
 
-    pusherRef.current = pusher;
+    const ws = new WebSocket(WS_URL);
+    wsRef.current = ws;
 
-    // Subscribe to private channel
-    const channel = pusher.subscribe(channelName);
+    ws.onopen = () => {
+      if (!mountedRef.current) return;
+      console.log("[WS] Connected");
+      setIsConnected(true);
+      retriesRef.current = 0; // reset retry counter on success
+    };
 
-    channel.bind("pusher:subscription_succeeded", () => {
-      onConnectedRef.current?.();
-    });
+    ws.onmessage = async (event) => {
+      try {
+        const message = JSON.parse(event.data);
 
-    channel.bind("pusher:subscription_error", (err) => {
-      console.warn("[WS] Subscription error:", err?.status || err);
-    });
+        // Pusher connection established — auth et
+        if (message.event === "pusher:connection_established") {
+          const { socket_id } = JSON.parse(message.data);
 
-    channel.bind("notification.sent", (data) => {
-      const payload = typeof data === "string" ? JSON.parse(data) : data;
-      const notif = {
-        title: payload.title || "Bildiriş",
-        message: payload.message || "",
-        type: payload.type || "info",
-        data: payload.data || null,
-        receivedAt: new Date().toISOString(),
-      };
-      dispatch(addNotification(notif));
-      onNotificationRef.current?.(notif);
-    });
+          const authRes = await fetch(AUTH_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              socket_id,
+              channel_name: channelName,
+            }),
+          });
 
-    pusher.connection.bind("error", (err) => {
-      console.warn("[WS] Connection error:", err?.error?.data || err);
-    });
+          if (!authRes.ok) {
+            console.error("[WS] Auth failed:", authRes.status);
+            return;
+          }
 
-    pusher.connection.bind("state_change", ({ current }) => {
-      if (current === "connected") {
-        console.log("[WS] Connected");
-      } else if (current === "disconnected" || current === "unavailable") {
-        console.warn("[WS] Disconnected, reconnecting...");
+          const { auth } = await authRes.json();
+
+          ws.send(JSON.stringify({
+            event: "pusher:subscribe",
+            data: { channel: channelName, auth },
+          }));
+
+          console.log(`[WS] Subscribed to ${channelName}`);
+        }
+
+        // Pusher ping → pong cavab ver (keep-alive)
+        if (message.event === "pusher:ping") {
+          ws.send(JSON.stringify({ event: "pusher:pong", data: {} }));
+        }
+
+        // Notification gəldi
+        if (message.event === "notification.sent") {
+          const data = JSON.parse(message.data);
+          const notif = {
+            id: data.id || Date.now(),
+            title: data.title || "Bildiriş",
+            message: data.message || "",
+            type: data.type || "info",
+            data: data.data || null,
+            receivedAt: new Date().toISOString(),
+          };
+          onNotificationRef.current?.(notif);
+        }
+
+      } catch (err) {
+        console.error("[WS] Message parse error:", err);
       }
-    });
+    };
+
+    ws.onerror = (err) => {
+      console.error("[WS] Error:", err);
+    };
+
+    ws.onclose = (event) => {
+      if (!mountedRef.current) return;
+      console.warn("[WS] Disconnected, code:", event.code);
+      setIsConnected(false);
+
+      // Auto-reconnect with exponential backoff
+      if (retriesRef.current < MAX_RETRIES) {
+        const delay = Math.min(BASE_DELAY * Math.pow(2, retriesRef.current), MAX_DELAY);
+        retriesRef.current += 1;
+        console.log(`[WS] Reconnecting in ${delay}ms (attempt ${retriesRef.current}/${MAX_RETRIES})`);
+        reconnectTimerRef.current = setTimeout(connect, delay);
+      } else {
+        console.error("[WS] Max retries reached, giving up.");
+      }
+    };
+  }, [user?.id, user?.is_resident, token]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    if (!user?.id || !token) return;
+
+    connect();
 
     return () => {
-      try {
-        channel.unbind_all();
-        pusher.unsubscribe(channelName);
-        pusher.disconnect();
-      } catch {}
-      pusherRef.current = null;
+      mountedRef.current = false;
+      clearTimeout(reconnectTimerRef.current);
+      if (wsRef.current) {
+        try { wsRef.current.close(); } catch { /* ignore */ }
+      }
     };
-  }, [user?.id, user?.is_resident]);
-}
+  }, [connect]);
 
+  const sendMessage = useCallback((payload) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(payload));
+    }
+  }, []);
+
+  return { isConnected, sendMessage };
+}
