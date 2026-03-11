@@ -102,7 +102,7 @@ export default function PropertiesPage() {
   };
 
   const handleEdit = (property) => {
-    console.log("editing property:", property);
+    // console.log("editing property:", property);
     form.setFormFromProperty(property);
     setMode("edit");
     setSelected(property);
@@ -190,11 +190,11 @@ export default function PropertiesPage() {
         }
         
         // Debug log - backend-ə gedən məlumatları yoxla
-        console.log("Backend-ə göndərilən PATCH data:", {
-          propertyId,
-          formData,
-          endpoint: `/module/properties/${propertyId}`
-        });
+        // console.log("Backend-ə göndərilən PATCH data:", {
+        //   propertyId,
+        //   formData,
+        //   endpoint: `/module/properties/${propertyId}`
+        // });
         
         await propertiesAPI.update(propertyId, formData);
         showToast("success", "Mənzil uğurla yeniləndi", "Uğurlu");

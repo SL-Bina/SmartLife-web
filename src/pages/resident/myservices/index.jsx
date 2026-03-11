@@ -42,7 +42,7 @@ export default function MyServicesPage() {
       const response = await myServicesAPI.getAll(params);
       const servicesData = response?.data?.data?.data || response?.data?.data ;
       setServices(servicesData);
-      console.log("Services loaded:", servicesData);
+      // console.log("Services loaded:", servicesData);
     } catch (err) {
       console.error("Error fetching services:", err);
       setError(null);

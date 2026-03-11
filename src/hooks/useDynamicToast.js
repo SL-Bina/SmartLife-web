@@ -1,32 +1,23 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
+import { pushToast, removeToast } from "@/utils/toastManager";
 
 export function useDynamicToast() {
-  const [toast, setToast] = useState({
-    open: false,
-    type: "info",
-    title: "",
-    message: "",
-    duration: 2500,
-  });
+  const lastIdRef = useRef(null);
 
   const showToast = useCallback((payload) => {
-    const { type = "info", title = "", message = "", duration = 2500 } = payload;
-
-    setToast((p) => ({ ...p, open: false }));
-    setTimeout(() => {
-      setToast({
-        open: true,
-        type,
-        title,
-        message,
-        duration,
-      });
-    }, 40);
+    const { type = "info", title = "", message = "", duration = 4000 } = payload;
+    lastIdRef.current = pushToast({ type, title, message, duration });
   }, []);
 
   const closeToast = useCallback(() => {
-    setToast((p) => ({ ...p, open: false }));
+    if (lastIdRef.current != null) {
+      removeToast(lastIdRef.current);
+      lastIdRef.current = null;
+    }
   }, []);
+
+  // Backward compat: return a toast object (unused by new container)
+  const toast = { open: false, type: "info", title: "", message: "", duration: 4000 };
 
   return { toast, showToast, closeToast };
 }

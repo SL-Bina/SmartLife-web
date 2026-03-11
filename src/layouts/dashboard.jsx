@@ -21,7 +21,7 @@ import { getFirstActivePath, buildParentPathMap } from "@/utils/getFirstActivePa
 import { useNotificationsSocket } from "@/hooks/useNotificationsSocket";
 import { useDynamicToast } from "@/hooks/useDynamicToast";
 import { addNotification } from "@/store/slices/notificationsSlice";
-import DynamicToast from "@/components/DynamicToast";
+import DynamicToastContainer from "@/components/DynamicToastContainer";
 import "./dashboard.css";
 
 const getCookie = (name) => {
@@ -179,7 +179,7 @@ export function Dashboard() {
   const [residentReady, setResidentReady] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  const { toast: wsToast, showToast: showWsToast, closeToast: closeWsToast } = useDynamicToast();
+  const { showToast: showWsToast } = useDynamicToast();
   const navigate = useNavigate();
   const token = getCookie('smartlife_token');
 
@@ -400,15 +400,8 @@ export function Dashboard() {
         <Footer />
       </div>
 
-      {/* Global real-time notification toast */}
-      <DynamicToast
-        open={wsToast.open}
-        type={wsToast.type}
-        title={wsToast.title}
-        message={wsToast.message}
-        duration={wsToast.duration}
-        onClose={closeWsToast}
-      />
+      {/* Global toast stack (iOS Dynamic Island style) */}
+      <DynamicToastContainer />
     </div>
   );
 }

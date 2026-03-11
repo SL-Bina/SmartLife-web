@@ -7,6 +7,6 @@ export { default as ResidentProfilePage } from './profile';
 export { default as ResidentMyPropertiesPage } from './myproperties';
 export { default as ResidentMyServicesPage } from './myservices';
 export { default as ResidentComplexDashboardPage } from './complexdashboard';
-
+export { default as ResidentPaymentHistoryPage } from './payment-history';
 
 // test deploy

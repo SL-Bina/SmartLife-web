@@ -182,20 +182,20 @@ export function PropertyFormModal({
     setSaving(true);
     
     // Debug log to check if submit is being called
-    console.log("PropertyFormModal submit called:", {
-      isEdit,
-      formData: form.formData,
-      mode
-    });
+    // console.log("PropertyFormModal submit called:", {
+    //   isEdit,
+    //   formData: form.formData,
+    //   mode
+    // });
     
     try {
       if (isEdit) {
         // Edit mode - send update request
-        console.log("Sending update request with data:", form.formData);
+        // console.log("Sending update request with data:", form.formData);
         await onSubmit?.(form.formData, true); // Pass true for edit mode
       } else {
         // Create mode - send create request
-        console.log("Sending create request with data:", form.formData);
+        // console.log("Sending create request with data:", form.formData);
         await onSubmit?.(form.formData, false); // Pass false for create mode
       }
       onClose?.();

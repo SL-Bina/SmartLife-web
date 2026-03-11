@@ -134,10 +134,10 @@ export function PropertyServiceFeeModal({ open, propertyId, propertyName, onClos
   };
 
   const handleSubmit = async () => {
-    console.log("handleSubmit called", { propertyId, formData, formMode });
+    // console.log("handleSubmit called", { propertyId, formData, formMode });
     
     if (submitting) {
-      console.log("Already submitting, ignoring...");
+      // console.log("Already submitting, ignoring...");
       return;
     }
     
@@ -187,15 +187,15 @@ export function PropertyServiceFeeModal({ open, propertyId, propertyName, onClos
         ...(formData.next_date && { next_date: formData.next_date }),
       };
 
-      console.log("Submitting data:", submitData);
+      // console.log("Submitting data:", submitData);
 
       if (formMode === "edit") {
         const response = await propertyServiceFeeAPI.update(propertyId, selectedServiceFeeId, submitData);
-        console.log("Update response:", response);
+        // console.log("Update response:", response);
         showToast("success", "Servis haqqı uğurla yeniləndi", "Uğurlu");
       } else {
         const response = await propertyServiceFeeAPI.add(propertyId, submitData);
-        console.log("Add response:", response);
+        // console.log("Add response:", response);
         
         // API response strukturunu yoxla
         if (response?.data?.success !== false) {

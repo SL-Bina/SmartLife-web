@@ -13,6 +13,7 @@ import {
   ArrowRightIcon,
   ClockIcon,
   KeyIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 import myPropertiesAPI from "./api";
@@ -101,6 +102,17 @@ export default function MyPropertiesPage() {
       .filter((item) => ["unpaid", "not_paid", "overdue"].includes(item?.status))
       .reduce((sum, item) => sum + Number(item?.amount || 0) - Number(item?.amount_paid || 0), 0);
   }, [invoices]);
+
+  // Calculate balance from invoices
+  const calculateBalance = () => {
+    const totalInvoiced = invoices.reduce((sum, inv) => sum + parseFloat(inv?.amount || 0), 0);
+    const totalPaid = invoices.reduce((sum, inv) => sum + parseFloat(inv?.amount_paid || 0), 0);
+    const calculatedBalance = totalPaid - totalInvoiced;
+    // Balance cannot be negative, minimum is 0
+    return Math.max(0, calculatedBalance);
+  };
+
+  const balance = calculateBalance();
 
   if (loading) {
     return (
@@ -265,6 +277,38 @@ export default function MyPropertiesPage() {
           </Card>
         ))}
       </div>
+
+      {/* ── Balance Section ── */}
+      <Card className="border dark:bg-gray-800" style={{ borderColor: getRgba(0.25) }}>
+        <CardBody className="p-4 sm:p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs mb-1">Cari Balans</Typography>
+              <Typography variant="h4" className={`font-bold ${balance > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`} style={{ color: balance > 0 ? undefined : undefined }}>
+                {balance > 0 ? '+' : ''}{balance.toFixed(2)} ₼
+              </Typography>
+            </div>
+            <div className="p-2 rounded-lg" style={{ backgroundColor: getRgba(0.12) }}>
+              <CurrencyDollarIcon className="h-5 w-5" style={{ color }} />
+            </div>
+          </div>
+          {balance > 0 && (
+            <Typography variant="small" className="text-green-600 dark:text-green-400 text-xs mt-1">
+              ✅ Artıqınız var: {balance.toFixed(2)} ₼
+            </Typography>
+          )}
+          {balance === 0 && totalDebt > 0 && (
+            <Typography variant="small" className="text-red-500 dark:text-red-400 text-xs mt-1">
+              ⚠️ Borcunuz var: {totalDebt.toFixed(2)} ₼
+            </Typography>
+          )}
+          {balance === 0 && totalDebt === 0 && (
+            <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+              ➖ Balansınız sıfırdır
+            </Typography>
+          )}
+        </CardBody>
+      </Card>
 
       {/* ── Property details ── */}
       <Card className="border dark:bg-gray-800" style={{ borderColor: getRgba(0.25) }}>

@@ -83,7 +83,7 @@ const DevicesPage = () => {
   // Delete
   const handleDelete = (device) => {
     // TODO: call devicesAPI.delete(device.id) then refresh
-    console.log("delete", device.id);
+    // // console.log("delete", device.id);
   };
 
   // Save

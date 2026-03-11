@@ -17,6 +17,9 @@ import {
   UserCircleIcon,
   WrenchScrewdriverIcon,
   ChevronRightIcon,
+  LockOpenIcon,
+  ArrowUpIcon,
+  CreditCardIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
 import { useTranslation } from "react-i18next";
@@ -73,6 +76,8 @@ const ResidentHomePage = () => {
   const [tickets, setTickets]             = useState([]);
   const [services, setServices]           = useState([]);
   const [storyGroups]                     = useState(DEMO_STORY_GROUPS);
+  const [doorUnlocking, setDoorUnlocking] = useState(false);
+  const [liftCalling, setLiftCalling]     = useState(false);
 
   useEffect(() => {
     fetchAll();
@@ -100,6 +105,61 @@ const ResidentHomePage = () => {
     setLoading(false);
   };
 
+  // Calculate balance from invoices
+  const calculateBalance = () => {
+    const totalInvoiced = invoices.reduce((sum, inv) => sum + parseFloat(inv?.amount || 0), 0);
+    const totalPaid = invoices.reduce((sum, inv) => sum + parseFloat(inv?.amount_paid || 0), 0);
+    const calculatedBalance = totalPaid - totalInvoiced;
+    // Balance cannot be negative, minimum is 0
+    return Math.max(0, calculatedBalance);
+  };
+
+  const balance = calculateBalance();
+  
+  // Calculate actual debt for display purposes
+  const calculateDebt = () => {
+    const totalInvoiced = invoices.reduce((sum, inv) => sum + parseFloat(inv?.amount || 0), 0);
+    const totalPaid = invoices.reduce((sum, inv) => sum + parseFloat(inv?.amount_paid || 0), 0);
+    const debt = totalInvoiced - totalPaid;
+    return Math.max(0, debt);
+  };
+
+  const debt = calculateDebt();
+
+  const handleUnlockDoor = async () => {
+    if (!selectedPropertyId) return;
+    
+    setDoorUnlocking(true);
+    try {
+      // Demo üçün sadəcə animasiya
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      // console.log("Qapı açıldı - Mənzil ID:", selectedPropertyId);
+      // Burada real API çağrısı olacaq
+      // await fetch(`/api/properties/${selectedPropertyId}/unlock`, { method: 'POST' });
+    } catch (error) {
+      console.error("Qapı açılarkən xəta:", error);
+    } finally {
+      setDoorUnlocking(false);
+    }
+  };
+
+  const handleCallLift = async () => {
+    if (!selectedPropertyId) return;
+    
+    setLiftCalling(true);
+    try {
+      // Demo üçün sadəcə animasiya
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      // console.log("Lift çağırıldı - Mənzil ID:", selectedPropertyId);
+      // Burada real API çağrısı olacaq
+      // await fetch(`/api/properties/${selectedPropertyId}/call-lift`, { method: 'POST' });
+    } catch (error) {
+      console.error("Lift çağırılarkən xəta:", error);
+    } finally {
+      setLiftCalling(false);
+    }
+  };
+
   const unpaidInvoices = invoices.filter((i) => ["unpaid", "not_paid", "overdue"].includes(i?.status));
   const totalDebt      = unpaidInvoices.reduce((s, i) => s + parseFloat(i?.amount || i?.remaining || 0), 0);
   const unreadNotifs   = notifications.filter((n) => !n?.is_read && !n?.read_at);
@@ -107,6 +167,7 @@ const ResidentHomePage = () => {
 
   const quickActions = [
     { label: "Fakturalar",  icon: DocumentTextIcon,       color: "#10b981", path: "/resident/invoices",       badge: unpaidInvoices.length || null },
+    { label: "Ödənişlər", icon: CreditCardIcon,        color: "#3b82f6", path: "/resident/payment-history", badge: null },
     { label: "Bildirişlər", icon: BellIcon,               color: "#f59e0b", path: "/resident/notifications",  badge: unreadNotifs.length || null },
     { label: "Müraciətlər", icon: QuestionMarkCircleIcon, color: "#8b5cf6", path: "/resident/tickets",         badge: openTickets.length || null },
     { label: "E-Sənədlər",  icon: BookOpenIcon,           color: "#06b6d4", path: "/resident/e-documents",    badge: null },
@@ -197,7 +258,7 @@ const ResidentHomePage = () => {
         </div>
       </motion.div>
 
-      <StoriesBar groups={storyGroups} height={160} />
+      {/* <StoriesBar groups={storyGroups} height={160} /> */}
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.05 }}>
         {selectedProperty ? (
@@ -235,6 +296,37 @@ const ResidentHomePage = () => {
                   <ChevronRightIcon className="h-4 w-4" />
                 </div>
               </div>
+              
+              {/* Balance Section */}
+              <div className="rounded-xl p-3 mb-3" style={{ background: `linear-gradient(135deg, ${getRgba(0.08)}, ${getRgba(0.03)})`, border: `1px solid ${getRgba(0.15)}` }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs mb-1">Cari Balans</Typography>
+                    <Typography variant="h4" className={`font-bold ${balance > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`} style={{ color: balance > 0 ? undefined : undefined }}>
+                      {balance > 0 ? '+' : ''}{balance.toFixed(2)} ₼
+                    </Typography>
+                  </div>
+                  <div className="p-2 rounded-lg" style={{ backgroundColor: getRgba(0.12) }}>
+                    <CurrencyDollarIcon className="h-5 w-5" style={{ color }} />
+                  </div>
+                </div>
+                {balance > 0 && (
+                  <Typography variant="small" className="text-green-600 dark:text-green-400 text-xs mt-1">
+                    ✅ Artıqınız var: {balance.toFixed(2)} ₼
+                  </Typography>
+                )}
+                {balance === 0 && debt > 0 && (
+                  <Typography variant="small" className="text-red-500 dark:text-red-400 text-xs mt-1">
+                    {debt > 0 ? `⚠️ Borcunuz var: ${formatCurrency(totalDebt)} ₼` : "Borcunuz yoxdur"}
+                  </Typography>
+                )}
+                {balance === 0 && debt === 0 && (
+                  <Typography variant="small" className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                    ➖ Balansınız sıfırdır
+                  </Typography>
+                )}
+              </div>
+              
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t" style={{ borderColor: getRgba(0.18) }}>
                 {[
                   { label: "Bina",    value: selectedProperty?.sub_data?.building?.name || selectedProperty?.building?.name || `#${selectedProperty?.building_id || "-"}` },
@@ -267,6 +359,122 @@ const ResidentHomePage = () => {
           </Card>
         )}
       </motion.div>
+
+      {/* Cihazlar bölməsi */}
+      {selectedProperty && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.35, delay: 0.1 }}
+        >
+          <Card className="shadow-md dark:bg-gray-800 border" style={{ borderColor: getRgba(0.25) }}>
+            <CardBody className="p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 rounded-lg" style={{ backgroundColor: getRgba(0.12) }}>
+                  <WrenchScrewdriverIcon className="h-5 w-5" style={{ color }} />
+                </div>
+                <Typography variant="h6" className="font-bold text-gray-800 dark:text-white">Cihazlar</Typography>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Qapı açma düyməsi */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Button
+                    onClick={handleUnlockDoor}
+                    disabled={doorUnlocking}
+                    className="w-full h-20 sm:h-24 flex flex-col items-center justify-center gap-2 rounded-xl border-2 transition-all duration-300 shadow-md hover:shadow-xl"
+                    style={{ 
+                      borderColor: doorUnlocking ? color : `${color}40`,
+                      background: doorUnlocking 
+                        ? `linear-gradient(135deg, ${color}20, ${color}10)` 
+                        : `linear-gradient(135deg, ${color}08, ${color}04)`,
+                      color: doorUnlocking ? `${color}dd` : color
+                    }}
+                  >
+                    <motion.div
+                      animate={doorUnlocking ? { rotate: [0, 15, -15, 15, 0] } : {}}
+                      transition={{ duration: 0.6, repeat: doorUnlocking ? Infinity : 0, repeatDelay: 0.3 }}
+                      className="relative"
+                    >
+                      <LockOpenIcon className={`h-8 w-8 ${doorUnlocking ? 'opacity-90' : 'opacity-80'}`} style={{ color }} />
+                      {doorUnlocking && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
+                          style={{ backgroundColor: color }}
+                        />
+                      )}
+                    </motion.div>
+                    <div className="text-center">
+                      <Typography variant="small" className={`font-semibold ${doorUnlocking ? 'opacity-90' : 'opacity-80'}`} style={{ color }}>
+                        {doorUnlocking ? 'Qapı Açılır...' : 'Qapını Aç'}
+                      </Typography>
+                      <Typography variant="small" className="text-xs opacity-60 mt-0.5" style={{ color }}>
+                        {doorUnlocking ? 'Zəhmət olmasa gözləyin' : 'Əsas girişə'}
+                      </Typography>
+                    </div>
+                  </Button>
+                </motion.div>
+
+                {/* Lift çağırma düyməsi */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
+                  <Button
+                    onClick={handleCallLift}
+                    disabled={liftCalling}
+                    className="w-full h-20 sm:h-24 flex flex-col items-center justify-center gap-2 rounded-xl border-2 transition-all duration-300 shadow-md hover:shadow-xl"
+                    style={{ 
+                      borderColor: liftCalling ? color : `${color}40`,
+                      background: liftCalling 
+                        ? `linear-gradient(135deg, ${color}20, ${color}10)` 
+                        : `linear-gradient(135deg, ${color}08, ${color}04)`,
+                      color: liftCalling ? `${color}dd` : color
+                    }}
+                  >
+                    <motion.div
+                      animate={liftCalling ? { y: [-3, 3, -3] } : {}}
+                      transition={{ duration: 1.2, repeat: liftCalling ? Infinity : 0, ease: "easeInOut" }}
+                      className="relative"
+                    >
+                      <ArrowUpIcon className={`h-8 w-8 ${liftCalling ? 'opacity-90' : 'opacity-80'}`} style={{ color }} />
+                      {liftCalling && (
+                        <motion.div
+                          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.4, 1] }}
+                          transition={{ duration: 1.2, repeat: Infinity }}
+                          className="absolute inset-0 rounded-full"
+                          style={{ backgroundColor: `${color}30` }}
+                        />
+                      )}
+                    </motion.div>
+                    <div className="text-center">
+                      <Typography variant="small" className={`font-semibold ${liftCalling ? 'opacity-90' : 'opacity-80'}`} style={{ color }}>
+                        {liftCalling ? 'Lift Gəlir...' : 'Lifti Çağır'}
+                      </Typography>
+                      <Typography variant="small" className="text-xs opacity-60 mt-0.5" style={{ color }}>
+                        {liftCalling ? 'Sizin mərtəbəyə' : 'Sizin mərtəbəyə'}
+                      </Typography>
+                    </div>
+                  </Button>
+                </motion.div>
+              </div>
+
+              <div className="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-600">
+                <Typography variant="small" className="text-gray-600 dark:text-gray-400 text-center text-xs">
+                  💡 <strong>Qeyd:</strong> Bu funksiyalar demo məqsədi ilə hazırlanıb. Hazırda sadəcə animasiya var.
+                </Typography>
+              </div>
+            </CardBody>
+          </Card>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[

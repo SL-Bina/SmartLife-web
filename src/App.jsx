@@ -1,12 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Dashboard, Auth } from "@/layouts";
 import { NotFound } from "@/pages/404";
-import NotificationListener from "@/components/NotificationListener";
 
 function App() {
   return (
     <>
-      <NotificationListener />
       <Routes>
         <Route
           path="/"

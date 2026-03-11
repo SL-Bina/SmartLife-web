@@ -38,7 +38,7 @@ export function useNotificationsSocket(user, token, onNotification) {
 
     ws.onopen = () => {
       if (!mountedRef.current) return;
-      console.log("[WS] Connected");
+      // console.log("[WS] Connected");
       setIsConnected(true);
       retriesRef.current = 0; // reset retry counter on success
     };
@@ -76,7 +76,7 @@ export function useNotificationsSocket(user, token, onNotification) {
             data: { channel: channelName, auth },
           }));
 
-          console.log(`[WS] Subscribed to ${channelName}`);
+          // console.log(`[WS] Subscribed to ${channelName}`);
         }
 
         // Pusher ping → pong cavab ver (keep-alive)
@@ -116,7 +116,7 @@ export function useNotificationsSocket(user, token, onNotification) {
       if (retriesRef.current < MAX_RETRIES) {
         const delay = Math.min(BASE_DELAY * Math.pow(2, retriesRef.current), MAX_DELAY);
         retriesRef.current += 1;
-        console.log(`[WS] Reconnecting in ${delay}ms (attempt ${retriesRef.current}/${MAX_RETRIES})`);
+        // console.log(`[WS] Reconnecting in ${delay}ms (attempt ${retriesRef.current}/${MAX_RETRIES})`);
         reconnectTimerRef.current = setTimeout(connect, delay);
       } else {
         console.error("[WS] Max retries reached, giving up.");

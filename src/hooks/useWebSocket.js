@@ -10,12 +10,12 @@ export default function useWebSocket(onMessage, url = WS_URL) {
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => {
-      console.log("WS connected");
+      // console.log("WS connected");
       setIsConnected(true);
     };
 
     ws.current.onclose = () => {
-      console.log("WS disconnected");
+      // console.log("WS disconnected");
       setIsConnected(false);
     };
 

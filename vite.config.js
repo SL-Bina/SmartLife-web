@@ -25,9 +25,10 @@ export default defineConfig({
     proxy: {
       // forward API requests to backend to avoid CORS during development
       "/api": {
-        target: "http://api.smartlife.az/api/v1",
+        target: "https://api.smartlife.az",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api/v1"),
       },
     },
   },

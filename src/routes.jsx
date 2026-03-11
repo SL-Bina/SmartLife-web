@@ -38,6 +38,7 @@ import {
   ResidentMyPropertiesPage,
   ResidentMyServicesPage,
   ResidentComplexDashboardPage,
+  ResidentPaymentHistoryPage,
 } from "@/pages/resident";
 import MtkPage from "./pages/dashboard/management/mtk";
 import ComplexesPage from "./pages/dashboard/management/complexes";
@@ -368,6 +369,12 @@ export const routes = [
         name: "sidebar.myInvoices",
         path: "/invoices",
         element: <ResidentMyInvaoicesPage />,
+      },
+      {
+        icon: <TableCellsIcon {...icon} />,
+        name: "Ödəniş Tarixcəsi",
+        path: "/payment-history",
+        element: <ResidentPaymentHistoryPage />,
       },
       {
         icon: <BuildingOfficeIcon {...icon} />,

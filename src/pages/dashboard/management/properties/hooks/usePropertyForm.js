@@ -62,7 +62,7 @@ export function usePropertyForm() {
       typeVal = typeof pt === "object" ? pt.id || null : pt;
     }
 
-    console.log("normalized property_type for form:", typeVal);
+    // console.log("normalized property_type for form:", typeVal);
     setFormData({
       id: property.id || null,
       name: property.name || "",

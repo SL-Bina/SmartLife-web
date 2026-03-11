@@ -18,30 +18,30 @@ const CONFIG = {
 
 async function start() {
   try {
-    console.log("Login olunur...");
+    // console.log("Login olunur...");
 
     const login = await axios.post(CONFIG.loginUrl, CONFIG.credentials);
 
     const token = login.data?.data?.token;
 
     if (!token) {
-      console.log("Token tapılmadı");
+      // console.log("Token tapılmadı");
       return;
     }
 
-    console.log("Token alındı");
+    // console.log("Token alındı");
 
     const channel = `private-notifications.${CONFIG.accountType}.${CONFIG.accountId}`;
 
-    console.log("WebSocket qoşulur...");
+    // console.log("WebSocket qoşulur...");
 
     const ws = new WebSocket(CONFIG.wsUrl + "?protocol=7&client=js&version=8.4.0");
 
     ws.on("open", async () => {
-      console.log("WS connected");
+      // console.log("WS connected");
 
       try {
-        console.log("Channel auth olunur...");
+        // console.log("Channel auth olunur...");
 
         const auth = await axios.post(
           CONFIG.authUrl,
@@ -57,7 +57,7 @@ async function start() {
           }
         );
 
-        console.log("Auth response:", auth.data);
+        // console.log("Auth response:", auth.data);
 
         const subscribe = {
           event: "pusher:subscribe",
@@ -69,7 +69,7 @@ async function start() {
 
         ws.send(JSON.stringify(subscribe));
 
-        console.log("Channel subscribe edildi:", channel);
+        // console.log("Channel subscribe edildi:", channel);
       } catch (err) {
         console.error("Auth error:", err.response?.data || err.message);
       }
@@ -78,9 +78,9 @@ async function start() {
     ws.on("message", (msg) => {
       try {
         const data = JSON.parse(msg.toString());
-        console.log("WS message:", data);
+        // console.log("WS message:", data);
       } catch {
-        console.log("WS raw:", msg.toString());
+        // console.log("WS raw:", msg.toString());
       }
     });
 
@@ -89,7 +89,7 @@ async function start() {
     });
 
     ws.on("close", () => {
-      console.log("WS disconnected");
+      // console.log("WS disconnected");
     });
   } catch (err) {
     console.error("Error:", err.response?.data || err.message);

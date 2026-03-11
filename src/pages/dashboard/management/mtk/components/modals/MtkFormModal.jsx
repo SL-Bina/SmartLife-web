@@ -170,20 +170,20 @@ export function MtkFormModal({ open, mode = "create", onClose, form, onSubmit, o
   // Get user's current location when map is shown
   useEffect(() => {
     if (showMap && navigator.geolocation) {
-      console.log("Requesting user location...");
+      // console.log("Requesting user location...");
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          console.log("✅ User location received:", { latitude, longitude });
+          // console.log("✅ User location received:", { latitude, longitude });
           
           // Always set user location marker - ensure numbers
           const loc = { 
             latitude: Number(latitude), 
             longitude: Number(longitude) 
           };
-          console.log("✅ Setting user location marker:", loc);
+          // console.log("✅ Setting user location marker:", loc);
           setUserLocation(loc);
-          console.log("✅ User location marker state updated");
+          // console.log("✅ User location marker state updated");
           
           // If no coordinates are set in form, use user's location for the selected marker too
           if (!form?.formData?.meta?.lat || !form?.formData?.meta?.lng) {
@@ -236,22 +236,22 @@ export function MtkFormModal({ open, mode = "create", onClose, form, onSubmit, o
   }, [form?.formData?.meta?.lat, form?.formData?.meta?.lng]);
 
   const handleMapClick = useCallback((event) => {
-    console.log("🗺️ Map clicked:", event);
+    // console.log("🗺️ Map clicked:", event);
     const lngLat = event.lngLat;
     
     if (lngLat && typeof lngLat.lng === 'number' && typeof lngLat.lat === 'number') {
       const { lng, lat } = lngLat;
-      console.log("📍 Setting marker to:", { lng, lat });
+      // console.log("📍 Setting marker to:", { lng, lat });
       
       // Update marker position
       const newPosition = { longitude: lng, latitude: lat };
       setMarkerPosition(newPosition);
-      console.log("✅ Marker position state updated:", newPosition);
+      // console.log("✅ Marker position state updated:", newPosition);
       
       // Update form fields
       form?.updateField("meta.lat", String(lat));
       form?.updateField("meta.lng", String(lng));
-      console.log("✅ Form fields updated");
+      // console.log("✅ Form fields updated");
     } else {
       console.warn("❌ Invalid lngLat in click event:", lngLat, "Event:", event);
     }
