@@ -6,8 +6,8 @@ const WS_URL = `${WS_BASE}?protocol=7&client=js&version=8.4.0`;
 const AUTH_URL = "https://api.smartlife.az/api/broadcasting/auth";
 
 const MAX_RETRIES = 10;
-const BASE_DELAY = 1000;   // 1s
-const MAX_DELAY = 30000;   // 30s
+const BASE_DELAY = 1000;   
+const MAX_DELAY = 30000;   
 
 export function useNotificationsSocket(user, token, onNotification) {
   const wsRef = useRef(null);
@@ -17,7 +17,6 @@ export function useNotificationsSocket(user, token, onNotification) {
   const onNotificationRef = useRef(onNotification);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Callback ref-ə saxla ki dependency array-ə düşməsin
   useEffect(() => {
     onNotificationRef.current = onNotification;
   }, [onNotification]);
@@ -28,7 +27,6 @@ export function useNotificationsSocket(user, token, onNotification) {
     const accountType = user.is_resident ? "resident" : "user";
     const channelName = `private-notifications.${accountType}.${user.id}`;
 
-    // Əvvəlki bağlantını bağla
     if (wsRef.current) {
       try { wsRef.current.close(); } catch { /* ignore */ }
     }
@@ -38,16 +36,15 @@ export function useNotificationsSocket(user, token, onNotification) {
 
     ws.onopen = () => {
       if (!mountedRef.current) return;
-      // console.log("[WS] Connected");
+      console.log("[WS] Connected");
       setIsConnected(true);
-      retriesRef.current = 0; // reset retry counter on success
+      retriesRef.current = 0; 
     };
 
     ws.onmessage = async (event) => {
       try {
         const message = JSON.parse(event.data);
 
-        // Pusher connection established — auth et
         if (message.event === "pusher:connection_established") {
           const { socket_id } = JSON.parse(message.data);
 
@@ -76,15 +73,13 @@ export function useNotificationsSocket(user, token, onNotification) {
             data: { channel: channelName, auth },
           }));
 
-          // console.log(`[WS] Subscribed to ${channelName}`);
+          console.log(`[WS] Subscribed to ${channelName}`);
         }
 
-        // Pusher ping → pong cavab ver (keep-alive)
         if (message.event === "pusher:ping") {
           ws.send(JSON.stringify({ event: "pusher:pong", data: {} }));
         }
 
-        // Notification gəldi
         if (message.event === "notification.sent") {
           const data = JSON.parse(message.data);
           const notif = {
@@ -112,11 +107,10 @@ export function useNotificationsSocket(user, token, onNotification) {
       console.warn("[WS] Disconnected, code:", event.code);
       setIsConnected(false);
 
-      // Auto-reconnect with exponential backoff
       if (retriesRef.current < MAX_RETRIES) {
         const delay = Math.min(BASE_DELAY * Math.pow(2, retriesRef.current), MAX_DELAY);
         retriesRef.current += 1;
-        // console.log(`[WS] Reconnecting in ${delay}ms (attempt ${retriesRef.current}/${MAX_RETRIES})`);
+        console.log(`[WS] Reconnecting in ${delay}ms (attempt ${retriesRef.current}/${MAX_RETRIES})`);
         reconnectTimerRef.current = setTimeout(connect, delay);
       } else {
         console.error("[WS] Max retries reached, giving up.");

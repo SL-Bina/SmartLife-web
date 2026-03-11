@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import residentEDocumentsAPI from "./api";
 import { DocumentViewModal } from "./components";
 import { useComplexColor } from "@/hooks/useComplexColor";
+import { DocumentsHeader } from "./components/DocumentsHeader";
 
 const fmtDate = (d) => {
   if (!d) return "-";
@@ -113,7 +114,7 @@ const ResidentEDocumentsPage = () => {
     <div className="space-y-5" style={{ position: "relative", zIndex: 0 }}>
 
       {/* ── Header ── */}
-      <div className="p-4 sm:p-6 rounded-xl shadow-lg border" style={headerStyle}>
+      {/* <div className="p-4 sm:p-6 rounded-xl shadow-lg border" style={headerStyle}>
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white/20 rounded-lg">
             <BookOpenIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
@@ -123,7 +124,9 @@ const ResidentEDocumentsPage = () => {
             <Typography variant="small" className="text-white/80">{documents.length} sənəd</Typography>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      <DocumentsHeader/>
 
       {/* ── Stat cards ── */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
