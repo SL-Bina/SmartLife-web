@@ -210,7 +210,6 @@ export default function BlocksPage() {
         entityLevel={ENTITY_LEVELS.BLOCK}
         search={search}
         onCreateClick={handleCreate}
-        onSearchClick={() => setSearchModalOpen(true)}
         onApplyNameSearch={handleApplyNameSearch}
         onStatusChange={handleStatusChange}
         onRemoveFilter={handleRemoveFilter}

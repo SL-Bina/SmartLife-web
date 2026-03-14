@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Spinner, Typography } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
+import { useAppSelector } from "@/store/hooks";
+import complexesAPI from "@/pages/dashboard/management/complexes/api";
 import { useInvoicesData } from "./hooks/useInvoicesData";
 import { useInvoicesForm } from "./hooks/useInvoicesForm";
 import { useInvoicesFilters } from "./hooks/useInvoicesFilters";
@@ -18,6 +20,7 @@ import { InvoicesSearchModal } from "./components/modals/InvoicesSearchModal";
 import { ViewModal } from "@/components/management/ViewModal";
 import { DeleteConfirmModal } from "@/components/management/DeleteConfirmModal";
 import DynamicToast from "@/components/DynamicToast";
+import { getInvoiceComplexId, resolveComplexPrePaidEnabled } from "./utils/paymentAvailability";
 import {
   BuildingOfficeIcon,
   CurrencyDollarIcon,
@@ -35,6 +38,9 @@ const InvoicesPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const selectedMtkId = useAppSelector((state) => state.mtk.selectedMtkId);
+  const selectedComplex = useAppSelector((state) => state.complex.selectedComplex);
+
   const {
     filters,
     apiParams,
@@ -45,6 +51,18 @@ const InvoicesPage = () => {
     removeFilter,
     clearFilters,
   } = useInvoicesFilters();
+
+  const apiParamsWithMtk = React.useMemo(() => {
+    const params = { ...apiParams };
+
+    if (selectedMtkId) {
+      params["mtk_ids[]"] = [selectedMtkId];
+    } else {
+      delete params["mtk_ids[]"];
+    }
+
+    return params;
+  }, [apiParams, selectedMtkId]);
   
   const [formOpen, setFormOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -61,10 +79,12 @@ const InvoicesPage = () => {
   const [itemToPay, setItemToPay] = useState(null);
   const [mode, setMode] = useState("create");
   const [saving, setSaving] = useState(false);
+  const [allowPartialPayment, setAllowPartialPayment] = useState(false);
+  const [complexPrePaidMap, setComplexPrePaidMap] = useState({});
   const [toast, setToast] = useState({ open: false, type: "info", message: "", title: "" });
 
   const { invoices, totalPaid, totalConsumption, loading, error, pagination } = useInvoicesData(
-    apiParams,
+    apiParamsWithMtk,
     page,
     refreshKey,
     itemsPerPage
@@ -77,9 +97,79 @@ const InvoicesPage = () => {
     }
   }, [pagination.totalPages, page]);
 
+  useEffect(() => {
+    let active = true;
+
+    const invoiceComplexIds = Array.from(
+      new Set(
+        (invoices || [])
+          .map((invoice) => getInvoiceComplexId(invoice))
+          .filter((id) => id !== null && id !== undefined && id !== "")
+      )
+    );
+
+      const missingIds = invoiceComplexIds.filter((id) => {
+      const invoice = invoices.find((item) => Number(getInvoiceComplexId(item)) === Number(id));
+      const inlineResolved = resolveComplexPrePaidEnabled(invoice);
+      return inlineResolved === null && complexPrePaidMap[String(id)] === undefined;
+    });
+
+    if (missingIds.length === 0) {
+      return () => {
+        active = false;
+      };
+    }
+
+    Promise.all(
+      missingIds.map(async (id) => {
+        try {
+          const response = await complexesAPI.getById(id);
+          const complexData = response?.data?.data ?? response?.data ?? null;
+          return [String(id), resolveComplexPrePaidEnabled(complexData)];
+        } catch {
+          return [String(id), null];
+        }
+      })
+    ).then((entries) => {
+      if (!active) return;
+      setComplexPrePaidMap((prev) => {
+        const next = { ...prev };
+        entries.forEach(([id, value]) => {
+          next[id] = value;
+        });
+        return next;
+      });
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [invoices, complexPrePaidMap]);
+
   const showToast = (type, message, title = "") => {
     setToast({ open: true, type, message, title });
   };
+
+  const isPartialPaymentAllowed = React.useCallback((invoice) => {
+    const inlineResolved = resolveComplexPrePaidEnabled(invoice);
+    if (inlineResolved !== null) {
+      return inlineResolved;
+    }
+
+    const complexResolved = resolveComplexPrePaidEnabled(selectedComplex);
+    const invoiceComplexId = getInvoiceComplexId(invoice);
+
+    if (invoiceComplexId !== null && invoiceComplexId !== undefined && complexPrePaidMap[String(invoiceComplexId)] !== undefined) {
+      return complexPrePaidMap[String(invoiceComplexId)] === true;
+    }
+
+    if (complexResolved !== null) {
+      return complexResolved;
+    }
+
+    // Safe default: partial payment disabled unless explicitly enabled by config.
+    return false;
+  }, [complexPrePaidMap, selectedComplex]);
 
   const handleApplyNameSearch = (value) => {
     applyName(value);
@@ -98,11 +188,6 @@ const InvoicesPage = () => {
 
   const handleSearch = (newFilters) => {
     applyFilters(newFilters);
-    setPage(1);
-  };
-
-  const handleClearAll = () => {
-    clearFilters();
     setPage(1);
   };
 
@@ -188,6 +273,7 @@ const InvoicesPage = () => {
   };
 
   const handlePay = (item) => {
+    setAllowPartialPayment(isPartialPaymentAllowed(item));
     setItemToPay(item);
     setPayModalOpen(true);
   };
@@ -540,6 +626,7 @@ const InvoicesPage = () => {
           setItemToPay(null);
         }}
         invoice={itemToPay}
+        allowPartialPayment={allowPartialPayment}
         onSuccess={handlePaySuccess}
       />
 

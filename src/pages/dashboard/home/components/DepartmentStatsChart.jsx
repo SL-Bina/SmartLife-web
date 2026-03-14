@@ -2,7 +2,8 @@ import React from "react";
 import { Typography } from "@material-tailwind/react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { BuildingOfficeIcon, CheckCircleIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
+import { BuildingOfficeIcon, ChartPieIcon, CheckCircleIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
+import { useMtkColor } from "@/store/exports";
 
 const DEPT_COLORS = [
   { bg: "bg-red-500", light: "bg-red-100 dark:bg-red-900/30", text: "text-red-600 dark:text-red-400", bar: "bg-red-500" },
@@ -15,6 +16,7 @@ const DEPT_COLORS = [
 
 export function DepartmentStatsChart({ departmentStats }) {
   const { t } = useTranslation();
+  const { getRgba } = useMtkColor();
 
   const stats = departmentStats || [];
 
@@ -27,7 +29,7 @@ export function DepartmentStatsChart({ departmentStats }) {
     >
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg border border-white/20 dark:border-gray-700/50 overflow-hidden h-full flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-5 py-4 flex items-center gap-3 flex-shrink-0">
+        {/* <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-5 py-4 flex items-center gap-3 flex-shrink-0">
           <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
             <BuildingOfficeIcon className="h-5 w-5 text-white" />
           </div>
@@ -37,6 +39,14 @@ export function DepartmentStatsChart({ departmentStats }) {
           <div className="ml-auto bg-white/20 rounded-full px-3 py-0.5">
             <span className="text-white text-xs font-semibold">{stats.length} {t("dashboard.charts.departments") || "şöbə"}</span>
           </div>
+        </div> */}
+        <div className="px-5 py-4 flex items-center gap-3 flex-shrink-0" style={{ background: `linear-gradient(to right, ${getRgba(0.95)}, ${getRgba(0.75)})` }}>
+          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+            <BuildingOfficeIcon className="h-5 w-5 text-white" />
+          </div>
+          <Typography variant="h6" className="text-white font-bold text-sm sm:text-base">
+            {t("dashboard.charts.departmentStats")}
+          </Typography>
         </div>
 
         {/* Summary row */}

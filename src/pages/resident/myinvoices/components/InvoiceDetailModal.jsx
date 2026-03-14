@@ -26,6 +26,7 @@ import { CheckCircleIcon as CheckCircleSolid } from "@heroicons/react/24/solid";
 import { useTranslation } from "react-i18next";
 import residentInvoicesAPI from "../api";
 import { useComplexColor } from "@/hooks/useComplexColor";
+import { RESIDENT_OFFICE_PAYMENT_MESSAGE, isResidentOnlinePaymentEnabled } from "../utils/paymentAvailability";
 
 // ── Payment Modal ──────────────────────────────────────────────────────────────
 function PaymentModal({ open, onClose, invoice, color, getRgba }) {
@@ -118,7 +119,7 @@ function PaymentModal({ open, onClose, invoice, color, getRgba }) {
 }
 
 // ── InvoiceDetailModal ──────────────────────────────────────────────────────────
-export function InvoiceDetailModal({ open, onClose, invoiceId }) {
+export function InvoiceDetailModal({ open, onClose, invoiceId, paymentEnabled = true }) {
   const { t } = useTranslation();
   const { color, getRgba } = useComplexColor();
   const [invoice, setInvoice] = useState(null);
@@ -182,6 +183,7 @@ export function InvoiceDetailModal({ open, onClose, invoiceId }) {
 
   const isUnpaid = ["unpaid", "not_paid", "overdue"].includes(invoice?.status);
   const remaining = Number(invoice?.amount || 0) - Number(invoice?.amount_paid || 0);
+  const canPayOnline = paymentEnabled && isResidentOnlinePaymentEnabled(invoice);
 
   const STATUS_CFG = {
     paid:     { label: "Ödənilib",       cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",  icon: <CheckCircleSolid className="h-4 w-4" /> },
@@ -317,7 +319,7 @@ export function InvoiceDetailModal({ open, onClose, invoiceId }) {
 
         <DialogFooter className="border-t border-gray-100 dark:border-gray-700 dark:bg-gray-900 gap-2 p-4">
           <Button variant="outlined" color="gray" onClick={onClose} className="normal-case">Bağla</Button>
-          {invoice && isUnpaid && remaining > 0 && (
+          {invoice && isUnpaid && remaining > 0 && canPayOnline && (
             <Button
               className="normal-case text-white flex-1"
               style={{ background: color }}
@@ -325,6 +327,16 @@ export function InvoiceDetailModal({ open, onClose, invoiceId }) {
             >
               <CreditCardIcon className="h-4 w-4 inline mr-2" />{remaining.toFixed(2)} ₼ Ödə
             </Button>
+          )}
+          {invoice && isUnpaid && remaining > 0 && !canPayOnline && (
+            <div className="flex-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+              <Typography variant="small" className="font-semibold text-amber-800 dark:text-amber-200">
+                Onlayn ödəniş deaktivdir
+              </Typography>
+              <Typography variant="small" className="text-amber-700 dark:text-amber-300">
+                {RESIDENT_OFFICE_PAYMENT_MESSAGE}
+              </Typography>
+            </div>
           )}
         </DialogFooter>
       </Dialog>

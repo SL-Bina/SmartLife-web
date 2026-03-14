@@ -11,19 +11,23 @@ import { EMPTY_FILTERS } from "../../hooks/useInvoicesFilters";
 const INVOICE_TYPE_VALUES = ["daily", "weekly", "monthly", "quarterly", "biannually", "yearly", "one_time"];
 const INVOICE_STATUS_VALUES = ["paid", "not_paid", "pending", "overdue", "declined", "draft", "pre_paid"];
 
-// Kaskad seçim üçün boş state
 const EMPTY_CASCADE = {
-  mtkId:      null, mtkLabel:      "",
-  complexId:  null, complexLabel:  "",
-  buildingId: null, buildingLabel: "",
-  blockId:    null, blockLabel:    "",
-  propertyId: null, propertyLabel: "",
+  mtkId: null,
+  mtkLabel: "",
+  complexId: null,
+  complexLabel: "",
+  buildingId: null,
+  buildingLabel: "",
+  blockId: null,
+  blockLabel: "",
+  propertyId: null,
+  propertyLabel: "",
 };
 
 export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = {} }) {
   const { t } = useTranslation();
   const [f, setF]         = useState(EMPTY_FILTERS);
-  const [cas, setCas]     = useState(EMPTY_CASCADE); // kaskad seçimlər
+  const [cas, setCas]     = useState(EMPTY_CASCADE);
   const [svc, setSvc]     = useState({ id: null, label: "" }); // xidmət
 
   // Modal açılanda mövcud filterləri yüklə
@@ -37,7 +41,6 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
 
   const set = (key, val) => setF((prev) => ({ ...prev, [key]: val }));
 
-  // Kaskad: yuxarı level dəyişəndə aşağı levelləri sıfırla
   const setMtk = (id, label) =>
     setCas({ ...EMPTY_CASCADE, mtkId: id, mtkLabel: label });
   const setComplex = (id, label) =>
@@ -52,7 +55,7 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
   const handleSearch = () => {
     const result = {
       ...f,
-      serviceIds:  svc.id  ? [svc.id]       : [],
+      serviceIds:  svc.id  ? [svc.id] : [],
       propertyIds: cas.propertyId ? [cas.propertyId] : [],
     };
     onSearch(result);
@@ -144,12 +147,9 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
             />
           </div>
 
-          {/* ── Ayırıcı ── */}
           <Divider label={t("invoices.searchModal.cascadeSection") || "Mənzil seçimi"} />
 
-          {/* ── MTK → Complex → Bina → Blok → Mənzil ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* MTK */}
             <AsyncSearchSelect
               label="MTK"
               endpoint="/search/module/mtk"
@@ -160,7 +160,6 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
               valueKey="id"
               allowClear
             />
-            {/* Complex */}
             <AsyncSearchSelect
               key={`complex-${cas.mtkId}`}
               label="Kompleks"
@@ -174,7 +173,6 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
               allowClear
               disabled={!cas.mtkId}
             />
-            {/* Building */}
             <AsyncSearchSelect
               key={`building-${cas.complexId}`}
               label="Bina"
@@ -188,7 +186,6 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
               allowClear
               disabled={!cas.complexId}
             />
-            {/* Block */}
             <AsyncSearchSelect
               key={`block-${cas.buildingId}`}
               label="Blok"
@@ -203,7 +200,7 @@ export function InvoicesSearchModal({ open, onClose, onSearch, currentFilters = 
               disabled={!cas.buildingId}
             />
           </div>
-          {/* Mənzil — tam genişlikdə */}
+
           <AsyncSearchSelect
             key={`property-${cas.blockId}`}
             label="Mənzil"

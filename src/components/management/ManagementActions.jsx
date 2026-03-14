@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { Button, Chip, Typography } from "@material-tailwind/react";
-import { PlusIcon, MagnifyingGlassIcon, FunnelIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, MagnifyingGlassIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { CustomInput } from "@/components/ui/CustomInput";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { AsyncSearchSelect } from "@/components/ui/AsyncSearchSelect";
@@ -24,6 +24,9 @@ export const ENTITY_LEVELS = {
   PROPERTY: "property",
   RESIDENT: "resident",
   INVOICE: "invoice",
+  SERVICE: "service",
+  USER: "user",
+  DEVICE: "device",
 };
 
 const LEVEL_CONFIG = {
@@ -69,6 +72,24 @@ const LEVEL_CONFIG = {
     addButtonText: "Faktura əlavə et",
     gradientColors: "from-green-500 to-green-600",
   },
+  [ENTITY_LEVELS.SERVICE]: {
+    filters: [],
+    label: "Servis",
+    addButtonText: "Servis əlavə et",
+    gradientColors: "from-cyan-500 to-cyan-600",
+  },
+  [ENTITY_LEVELS.USER]: {
+    filters: [],
+    label: "İstifadəçi",
+    addButtonText: "İstifadəçi əlavə et",
+    gradientColors: "from-rose-500 to-rose-600",
+  },
+  [ENTITY_LEVELS.DEVICE]: {
+    filters: [],
+    label: "Cihaz",
+    addButtonText: "Cihaz əlavə et",
+    gradientColors: "from-sky-500 to-sky-600",
+  },
 };
 
 const FILTER_CONFIG = {
@@ -109,12 +130,13 @@ export function ManagementActions({
   onApplyNameSearch,
   onStatusChange,
   onRemoveFilter,
-  onResetFilters,
   onCreateClick,
   onSearchClick,
   totalItems = 0,
   itemsPerPage = 20,
   onItemsPerPageChange,
+  showStatus = true,
+  renderExtraControls,
   customFilterLabels = {},
 }) {
   const config = LEVEL_CONFIG[entityLevel];
@@ -217,16 +239,6 @@ export function ManagementActions({
       setSelectedLabels(prev => ({ ...prev, ...labels }));
     }
   }, [selectedMtk, selectedComplex, selectedBuilding, selectedBlock, selectedProperty]);
-
-  // Refresh child filters (keep MTK selected) and notify parent
-  const handleRefreshFilters = () => {
-    dispatch(setSelectedComplex({ id: null, complex: null }));
-    dispatch(setSelectedBuilding({ id: null, building: null }));
-    dispatch(setSelectedBlock({ id: null, block: null }));
-    dispatch(setSelectedProperty({ id: null, property: null }));
-    setSelectedLabels({});
-    onResetFilters?.();
-  };
 
   useEffect(() => {
     setLocalName(search?.name || "");
@@ -547,12 +559,15 @@ export function ManagementActions({
             onBlur={handleNameInputBlur}
             placeholder="Ad yazın..."
           />
-          <CustomSelect
-            label="Status"
-            value={search?.status || ""}
-            onChange={(value) => onStatusChange?.(value)}
-            options={statusOptions}
-          />
+          {showStatus && (
+            <CustomSelect
+              label="Status"
+              value={search?.status || ""}
+              onChange={(value) => onStatusChange?.(value)}
+              options={statusOptions}
+            />
+          )}
+          {renderExtraControls?.(true)}
         </div>
 
         {hasFilters && (
@@ -600,17 +615,6 @@ export function ManagementActions({
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          {onCreateClick && (
-            <Button
-              type="button"
-              onClick={handleRefreshFilters}
-              className="bg-gray-500 hover:bg-gray-600 text-white shadow-md hover:shadow-lg transition-all px-3"
-              size="sm"
-              title="Filterləri sıfırla və yenilə"
-            >
-              <ArrowPathIcon className="h-4 w-4" />
-            </Button>
-          )}
           {onSearchClick && (
             <Button
               type="button"
@@ -653,14 +657,18 @@ export function ManagementActions({
           </div>
 
           {/* Status Select */}
-          <div className="w-full md:w-[140px] flex-shrink-0">
-            <CustomSelect
-              label="Status"
-              value={search?.status || ""}
-              onChange={(value) => onStatusChange?.(value)}
-              options={statusOptions}
-            />
-          </div>
+          {showStatus && (
+            <div className="w-full md:w-[140px] flex-shrink-0">
+              <CustomSelect
+                label="Status"
+                value={search?.status || ""}
+                onChange={(value) => onStatusChange?.(value)}
+                options={statusOptions}
+              />
+            </div>
+          )}
+
+          {renderExtraControls?.(false)}
 
           {/* Filter Selects */}
           {config.filters.map((filterType) => renderFilterSelect(filterType, false))}
@@ -683,17 +691,6 @@ export function ManagementActions({
 
           {/* Action Buttons */}
           <div className="flex gap-2 flex-shrink-0">
-            {onCreateClick && (
-              <Button
-                type="button"
-                onClick={handleRefreshFilters}
-                className="bg-gray-500 hover:bg-gray-600 text-white shadow-md hover:shadow-lg transition-all px-3"
-                size="md"
-                title="Filterləri sıfırla və yenilə"
-              >
-                <ArrowPathIcon className="h-4 w-4" />
-              </Button>
-            )}
             {onSearchClick && (
               <Button
                 type="button"

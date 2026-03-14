@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Typography } from "@material-tailwind/react";
 
 import { UserAddHeader } from "./components/UserAddHeader";
-import { UsersActions } from "./components/UsersActions";
 import { UsersTable } from "./components/UsersTable";
 import { UsersCardList } from "./components/UsersCardList";
 import { UsersPagination } from "./components/UsersPagination";
 import { UserAddFormModal } from "./components/modals/UserAddFormModal";
-import { UsersSearchModal } from "./components/modals/UsersSearchModal";
+import { ManagementActions, ENTITY_LEVELS } from "@/components/management/ManagementActions";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 import { useUserAddForm } from "./hooks/useUserAddForm";
 import { useUserAddLookups } from "./hooks/useUserAddLookups";
@@ -34,7 +34,6 @@ import {
 export default function UserAddPage() {
 
   const [formOpen, setFormOpen] = useState(false);
-  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -50,9 +49,18 @@ export default function UserAddPage() {
   };
 
   const [search, setSearch] = useState("");
+  const [selectedRoleId, setSelectedRoleId] = useState("");
   const form = useUserAddForm();
-  const lookups = useUserAddLookups(formOpen);
-  const { items, loading, page, lastPage, total, itemsPerPage, setItemsPerPage, goToPage, refresh } = useUsersData({ search });
+  const lookups = useUserAddLookups(true);
+  const { items, loading, page, lastPage, total, itemsPerPage, setItemsPerPage, goToPage, refresh } = useUsersData({
+    search,
+    roleId: selectedRoleId,
+  });
+
+  const roleOptions = [
+    { value: "", label: "Bütün rollar" },
+    ...lookups.roles.map((role) => ({ value: String(role.id), label: role.name })),
+  ];
 
   const mapUserToForm = (user) => ({
       name: user?.name || "",
@@ -175,14 +183,25 @@ export default function UserAddPage() {
 
 
   return (
-    <div className="py-4 flex flex-col gap-4">
-      <UserAddHeader onCreateClick={openCreate} />
+    <div className="space-y-6" style={{ position: "relative", zIndex: 0 }}>
+      <UserAddHeader />
 
-      <UsersActions
-        search={search}
-        onSearchChange={setSearch}
-        onSearchClick={() => setSearchModalOpen(true)}
+      <ManagementActions
+        entityLevel={ENTITY_LEVELS.USER}
+        search={{ name: search }}
         onCreateClick={openCreate}
+        onApplyNameSearch={(value) => setSearch(value && value.trim() ? value.trim() : "")}
+        showStatus={false}
+        renderExtraControls={(isMobile) => (
+          <div className={isMobile ? "w-full" : "w-full md:w-[180px] flex-shrink-0"}>
+            <CustomSelect
+              label="Rol"
+              value={selectedRoleId}
+              onChange={(value) => setSelectedRoleId(value || "")}
+              options={roleOptions}
+            />
+          </div>
+        )}
         totalItems={total}
         itemsPerPage={itemsPerPage}
         onItemsPerPageChange={setItemsPerPage}
@@ -230,15 +249,6 @@ export default function UserAddPage() {
         form={form}
         onSubmit={submitForm}
         lookups={lookups}
-      />
-
-      <UsersSearchModal
-        open={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-        onSearch={(searchString) => {
-          setSearch(searchString);
-        }}
-        currentSearch={search}
       />
 
       <ViewModal

@@ -19,6 +19,7 @@ const DEFAULT_ITEMS_PER_PAGE = 10;
 
 export function useUsersData({ 
   search = "",  
+  roleId = "",
 } = {}) {
   const [loading, setLoading] = useState(true);
   const [allItems, setAllItems] = useState([]); 
@@ -105,11 +106,20 @@ export function useUsersData({
     fetchAllPages(search);
   }, [search, fetchAllPages]);
 
+  const filteredItems = useMemo(() => {
+    if (!roleId) return allItems;
+    const selectedRoleId = Number(roleId);
+    return allItems.filter((item) => {
+      const rawRoleId = item?.role?.id ?? item?.role?.role_id ?? item?.role_id ?? null;
+      return Number(rawRoleId) === selectedRoleId;
+    });
+  }, [allItems, roleId]);
+
   const currentPageItems = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return allItems.slice(startIndex, endIndex);
-  }, [allItems, currentPage, itemsPerPage]);
+    return filteredItems.slice(startIndex, endIndex);
+  }, [filteredItems, currentPage, itemsPerPage]);
 
   const goToPage = useCallback(
     (pageNum) => {
@@ -119,8 +129,8 @@ export function useUsersData({
   );
 
   const currentLastPage = useMemo(() => {
-    return Math.ceil(allItems.length / itemsPerPage) || 1;
-  }, [allItems.length, itemsPerPage]);
+    return Math.ceil(filteredItems.length / itemsPerPage) || 1;
+  }, [filteredItems.length, itemsPerPage]);
 
   const refresh = useCallback(() => {
     setLastFetchedPage(0);
@@ -138,7 +148,7 @@ export function useUsersData({
     rawItems: allItems,
     page: currentPage,
     lastPage: currentLastPage,
-    total: allItems.length, 
+    total: filteredItems.length,
     itemsPerPage,
     setItemsPerPage,
     goToPage,

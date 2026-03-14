@@ -229,7 +229,6 @@ export default function ComplexesPage() {
         entityLevel={ENTITY_LEVELS.COMPLEX}
         search={search}
         onCreateClick={handleCreate}
-        onSearchClick={() => setSearchModalOpen(true)}
         onApplyNameSearch={handleApplyNameSearch}
         onStatusChange={handleStatusChange}
         onRemoveFilter={handleRemoveFilter}

@@ -145,6 +145,62 @@ export const devicesAPI = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Basip Project identifier endpoints
+  getBasipIdentifiers: async ({ complex_id, page = 1, size = 20 }) => {
+    try {
+      const response = await api.post("/integration/device/basip-project/identifiers", {
+        complex_id,
+        page,
+        size,
+      });
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  getBasipIdentifier: async ({ id, complex_id }) => {
+    try {
+      const response = await api.post(`/integration/device/basip-project/identifiers/${id}`, {
+        complex_id,
+      });
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  addBasipIdentifier: async (data) => {
+    try {
+      const response = await api.put("/integration/device/basip-project/identifiers/add", data);
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  updateBasipIdentifier: async ({ id, ...data }) => {
+    try {
+      const response = await api.patch(`/integration/device/basip-project/identifiers/${id}`, data);
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  deleteBasipIdentifier: async ({ id, complex_id }) => {
+    try {
+      const response = await api.delete(`/integration/device/basip-project/identifiers/${id}`, {
+        data: {
+          complex_id,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default devicesAPI;

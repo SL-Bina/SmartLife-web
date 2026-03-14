@@ -53,6 +53,18 @@ const buildParams = (filters = {}, page = 1, perPage = 20) => {
   p.append('page', String(page));
   p.append('per_page', String(perPage));
 
+  const appendArrayValues = (keys = []) => {
+    keys.forEach((key) => {
+      const values = filters[key];
+      if (!Array.isArray(values)) return;
+      values.forEach((id) => {
+        if (id !== null && id !== undefined && id !== "") {
+          p.append(key, String(id));
+        }
+      });
+    });
+  };
+
   if (filters.status)     p.append('status',     filters.status);
   if (filters.type)       p.append('type',        filters.type);
   if (filters.invoice_id) p.append('invoice_id',  filters.invoice_id);
@@ -60,6 +72,7 @@ const buildParams = (filters = {}, page = 1, perPage = 20) => {
   // Arrays: service_ids[] / property_ids[]
   (filters['service_ids[]']  || []).forEach((id) => p.append('service_ids[]',  id));
   (filters['property_ids[]'] || []).forEach((id) => p.append('property_ids[]', id));
+  appendArrayValues(['mtk_ids[]', 'complex_ids[]', 'building_ids[]', 'block_ids[]']);
 
   // Range: paid_at=2026-02-01_2026-02-14
   if (filters.paid_at)       p.append('paid_at',      filters.paid_at);

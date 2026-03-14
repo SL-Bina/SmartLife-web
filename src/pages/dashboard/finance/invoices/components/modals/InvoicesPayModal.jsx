@@ -21,7 +21,7 @@ const emptyForm = {
   paid_at: "",
 };
 
-export function InvoicesPayModal({ open, onClose, invoice, onSuccess }) {
+export function InvoicesPayModal({ open, onClose, invoice, onSuccess, allowPartialPayment = false }) {
   const { t } = useTranslation();
 
   const [form, setForm] = useState(emptyForm);
@@ -37,6 +37,8 @@ export function InvoicesPayModal({ open, onClose, invoice, onSuccess }) {
           parseFloat(invoice.amount || 0) - parseFloat(invoice.amount_paid || 0)
         ).toFixed(2)
       : "0.00";
+
+  const remainingAmount = parseFloat(remaining || 0);
 
   // Prefill amount and fetch methods when opening
   useEffect(() => {
@@ -58,6 +60,10 @@ export function InvoicesPayModal({ open, onClose, invoice, onSuccess }) {
     const amt = parseFloat(form.amount_paid);
     if (!form.amount_paid || isNaN(amt) || amt <= 0) {
       errs.amount_paid = t("invoices.pay.errors.amountRequired") || "Məbləğ daxil edin";
+    } else if (amt - remainingAmount > 0.0001) {
+      errs.amount_paid = "Məbləğ qalıq borcdan çox ola bilməz";
+    } else if (!allowPartialPayment && Math.abs(amt - remainingAmount) > 0.0001) {
+      errs.amount_paid = "Bu kompleksdə qismən ödəniş aktiv deyil. Qalıq məbləği tam ödəməlisiniz";
     }
     if (!form.payment_method_id) {
       errs.payment_method_id =
@@ -169,12 +175,18 @@ export function InvoicesPayModal({ open, onClose, invoice, onSuccess }) {
         {/* Amount paid */}
         <div>
           <Input
-            label={t("invoices.pay.amountPaid") || "Ödəniləcək məbləğ (₼)"}
+            label={
+              allowPartialPayment
+                ? (t("invoices.pay.amountPaid") || "Ödəniləcək məbləğ (₼)")
+                : "Ödəniləcək məbləğ (tam qalıq)"
+            }
             type="number"
             min="0.01"
             step="0.01"
             value={form.amount_paid}
+            disabled={!allowPartialPayment}
             onChange={(e) => {
+              if (!allowPartialPayment) return;
               setForm((f) => ({ ...f, amount_paid: e.target.value }));
               setErrors((er) => ({ ...er, amount_paid: undefined }));
             }}
@@ -185,6 +197,11 @@ export function InvoicesPayModal({ open, onClose, invoice, onSuccess }) {
           {errors.amount_paid && (
             <Typography variant="small" className="text-red-500 mt-1 text-xs">
               {errors.amount_paid}
+            </Typography>
+          )}
+          {!allowPartialPayment && (
+            <Typography variant="small" className="text-gray-500 dark:text-gray-400 mt-1 text-xs">
+              Bu kompleksdə `pre_paid` deaktivdir. Yalnız qalıq məbləğin tam ödənişi mümkündür.
             </Typography>
           )}
         </div>

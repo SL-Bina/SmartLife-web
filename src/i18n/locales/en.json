@@ -26,7 +26,9 @@
     "loading": "Loading...",
     "select": "Select...",
     "min": "Min",
-    "max": "Max"
+    "max": "Max",
+    "confirmDelete": "Are you sure you want to delete?",
+    "description": "Description"
   },
   "header": {
     "search": "Search",
@@ -2655,7 +2657,9 @@
       "delete": "Delete",
       "save": "Save",
       "close": "Close",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "loading": "Loading...",
+      "saving": "Saving..."
     },
     "table": {
       "id": "ID",
@@ -2714,11 +2718,22 @@
       "name": "Name",
       "deviceCount": "Device Count"
     },
+    "complexSelection": {
+      "title": "Complex Selection",
+      "requiredDescription": "Select a complex to continue in Devices module.",
+      "changeDescription": "Select a different complex to switch context.",
+      "confirm": "Open complex",
+      "changeButton": "Select complex",
+      "activeComplex": "Active complex",
+      "loadError": "Failed to load complex configuration"
+    },
     "deviceUsers": {
       "title": "Device Users",
       "userName": "User Name",
       "email": "Email",
       "phone": "Phone",
+      "role": "Role",
+      "domain": "Domain",
       "addUser": "New User",
       "complex": "Complex",
       "total": "Total",
@@ -2740,7 +2755,12 @@
       "title": "Device Identifiers",
       "name": "Name",
       "value": "Value",
-      "type": "Type"
+      "type": "Type",
+      "add": "New identifier",
+      "edit": "Edit identifier",
+      "ownerId": "Owner ID",
+      "ownerType": "Owner type",
+      "status": "Status"
     },
     "deviceLogs": {
       "title": "Device Logs",
@@ -2751,6 +2771,7 @@
       "acsMessage": "ACS Message"
     },
     "pagination": {
+      "page": "Page",
       "prev": "Previous",
       "next": "Next"
     },

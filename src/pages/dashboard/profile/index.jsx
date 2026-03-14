@@ -1,31 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/store/exports";
-import { ProfileHeader, ProfileSidebar, ProfileTabs, ProfileComplexInfo, ProfileAdditionalInfo } from "./components";
+import { ProfileHeader, ProfileSidebar, ProfileTabs, ProfileComplexInfo, ProfileAdditionalInfo, ProfileEditModal } from "./components";
 import { useProfileMessages } from "./hooks";
 
 const Profile = () => {
   const { user, refreshUser } = useAuth();
   const messages = useProfileMessages();
+  const [editOpen, setEditOpen] = useState(false);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="space-y-5 pb-2" style={{ position: "relative", zIndex: 0 }}>
       <ProfileHeader />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 flex-1 min-h-0">
-        {/* LEFT */}
-        <ProfileSidebar user={user} />
-
-        {/* RIGHT TABS */}
-        <div className="lg:col-span-2 flex flex-col min-h-0">
-          <ProfileTabs user={user} refreshUser={refreshUser} messages={messages} />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch">
+        <div className="xl:col-span-4 h-full">
+          <ProfileSidebar user={user} />
         </div>
 
-        {/* BOTTOM */}
-        <div className="flex flex-row gap-3 w-full lg:col-span-3 flex-1 min-h-0">
+        <div className="xl:col-span-8 h-full">
+          <ProfileTabs user={user} messages={messages} onEditClick={() => setEditOpen(true)} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch">
+        <div className="xl:col-span-4 h-full">
           <ProfileComplexInfo user={user} />
+        </div>
+        <div className="xl:col-span-8 h-full">
           <ProfileAdditionalInfo user={user} />
         </div>
       </div>
+
+      <ProfileEditModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        user={user}
+        onSaved={refreshUser}
+        messages={messages}
+      />
     </div>
   );
 };

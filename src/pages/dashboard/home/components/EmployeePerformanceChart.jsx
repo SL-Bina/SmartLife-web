@@ -4,13 +4,15 @@ import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { UserGroupIcon } from "@heroicons/react/24/outline";
 import Chart from "react-apexcharts";
+import { useMtkColor } from "@/store/exports";
 
 export function EmployeePerformanceChart({ options, series, height }) {
   const { t } = useTranslation();
+  const { getRgba } = useMtkColor();
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-lg border border-white/20 dark:border-gray-700/50 overflow-hidden h-full flex flex-col">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-4 flex items-center gap-3 flex-shrink-0">
+        <div className="px-5 py-4 flex items-center gap-3 flex-shrink-0" style={{ background: `linear-gradient(to right, ${getRgba(0.95)}, ${getRgba(0.75)})` }}>
           <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
             <UserGroupIcon className="h-5 w-5 text-white" />
           </div>

@@ -1,32 +1,73 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { loadComplexes } from "@/store/slices/complexSlice";
+import { loadComplexes, loadComplexById, setSelectedComplex } from "@/store/slices/complexSlice";
+import complexesAPI from "@/pages/dashboard/management/complexes/api";
 
 import devicesDataRaw from "./api/data.json";
 import { devicesAPI } from "./api";
 
 import { DeviceHeader } from "./components/DeviceHeader";
-import { DeviceActions } from "./components/DeviceActions";
 import { DeviceTable } from "./components/DeviceTable";
-import { DeviceFilterModal } from "./components/modals/DeviceFilterModal";
 import { DeviceFormModal } from "./components/modals/DeviceFormModal";
 import { AccessRulesModal } from "./components/modals/AccessRulesModal";
 import { DeviceUsersModal } from "./components/modals/DeviceUsersModal";
 import { DeviceUserFormModal } from "./components/modals/DeviceUserFormModal";
 import { DeviceIdentifiersModal } from "./components/modals/DeviceIdentifiersModal";
 import { DeviceLogsModal } from "./components/modals/DeviceLogsModal";
+import { DeviceComplexSelectModal } from "./components/modals/DeviceComplexSelectModal";
 import SmartPagination from "@/components/ui/SmartPagination";
+import AppSelect from "@/components/ui/AppSelect";
+import { Button } from "@material-tailwind/react";
+import { ManagementActions } from "@/components/management/ManagementActions";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 import { useDeviceList } from "./hooks/useDeviceList";
 import { useDeviceForm } from "./hooks/useDeviceForm";
 
 const accessRulesData = devicesDataRaw?.accessRules ?? [];
-const identifiersData = devicesDataRaw?.identifiers ?? [];
 const logsData = devicesDataRaw?.logs ?? [];
+const DEVICES_COMPLEX_STORAGE_KEY = "smartlife_devices_complex_id";
+
+const getPersistedDevicesComplexId = () => {
+  try {
+    const raw = localStorage.getItem(DEVICES_COMPLEX_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const isTruthyFlag = (value) => value === true || value === "true" || value === 1 || value === "1";
+
+const canLoadBasipProjectForComplex = (complexDetails) => {
+  const config = complexDetails?.config || {};
+  const integrationRoot = config?.integrations || {};
+  const deviceIntegration = integrationRoot?.device || {};
+
+  const connectionType =
+    deviceIntegration?.device_connection ||
+    deviceIntegration?.device_integration ||
+    integrationRoot?.device_integration ||
+    config?.device_integration ||
+    "";
+
+  if (String(connectionType).toLowerCase() === "basip_project") return true;
+
+  const hasProject =
+    deviceIntegration?.has_project ??
+    integrationRoot?.has_project ??
+    config?.has_project ??
+    complexDetails?.has_project;
+
+  return isTruthyFlag(hasProject);
+};
 
 const DevicesPage = () => {
   const { t } = useTranslation();
+  const { getActiveGradient } = useMtkColor();
 
   const {
     items,
@@ -44,6 +85,7 @@ const DevicesPage = () => {
   const dispatch = useAppDispatch();
   const complexes = useAppSelector((state) => state.complex.complexes);
   const selectedComplexIdFromStore = useAppSelector((state) => state.complex.selectedComplexId);
+  const persistedDevicesComplexId = getPersistedDevicesComplexId();
 
   const form = useDeviceForm();
 
@@ -55,12 +97,23 @@ const DevicesPage = () => {
   const [deviceUsersLoading, setDeviceUsersLoading] = useState(false);
   const [deviceUsersPage, setDeviceUsersPage] = useState(1);
   const [deviceUsersTotal, setDeviceUsersTotal] = useState(0);
-  const [selectedComplexId, setSelectedComplexId] = useState(selectedComplexIdFromStore || 2);
-  const selectedComplexName = complexes.find((c) => c.id === Number(selectedComplexId))?.name || "";
+  const [selectedComplexId, setSelectedComplexId] = useState(
+    persistedDevicesComplexId || selectedComplexIdFromStore || null
+  );
+  const [complexSelectionOpen, setComplexSelectionOpen] = useState(false);
+  const [complexSelectionRequired, setComplexSelectionRequired] = useState(false);
+  const [eligibleComplexes, setEligibleComplexes] = useState([]);
+  const [eligibleComplexesLoading, setEligibleComplexesLoading] = useState(false);
+  const [eligibleComplexesError, setEligibleComplexesError] = useState("");
+
+  const selectedComplexName =
+    eligibleComplexes.find((c) => c.id === Number(selectedComplexId))?.name ||
+    complexes.find((c) => c.id === Number(selectedComplexId))?.name ||
+    "";
   const [userFormOpen, setUserFormOpen] = useState(false);
   const [userFormSaving, setUserFormSaving] = useState(false);
   const [userFormData, setUserFormData] = useState({
-    complex_id: 2,
+    complex_id: persistedDevicesComplexId || selectedComplexIdFromStore || "",
     name: "",
     email: "",
     phone: "",
@@ -73,11 +126,46 @@ const DevicesPage = () => {
   });
   const [userFormErrors, setUserFormErrors] = useState({});
   const [deviceIdentifiersOpen, setDeviceIdentifiersOpen] = useState(false);
+  const [deviceIdentifiers, setDeviceIdentifiers] = useState([]);
+  const [deviceIdentifiersLoading, setDeviceIdentifiersLoading] = useState(false);
+  const [deviceIdentifiersPage, setDeviceIdentifiersPage] = useState(1);
+  const [deviceIdentifiersTotal, setDeviceIdentifiersTotal] = useState(0);
   const [deviceLogsOpen, setDeviceLogsOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState(filterStatus);
 
+  const applyComplexSelection = useCallback(
+    (complexId, { closeModal = true } = {}) => {
+      const normalizedId = Number(complexId);
+      if (!Number.isFinite(normalizedId) || normalizedId <= 0) return;
+
+      setSelectedComplexId(normalizedId);
+
+      try {
+        localStorage.setItem(DEVICES_COMPLEX_STORAGE_KEY, String(normalizedId));
+      } catch (error) {
+        // Ignore storage write errors and continue with in-memory selection.
+      }
+
+      dispatch(setSelectedComplex({ id: normalizedId }));
+      dispatch(loadComplexById(normalizedId));
+
+      if (closeModal) {
+        setComplexSelectionOpen(false);
+        setComplexSelectionRequired(false);
+      }
+    },
+    [dispatch]
+  );
+
   const loadDeviceUsers = useCallback(async (opts = {}) => {
-    const complex_id = opts.complex_id ?? selectedComplexId ?? 2;
+    const complex_id = Number(opts.complex_id ?? selectedComplexId);
+    if (!complex_id) {
+      setDeviceUsers([]);
+      setDeviceUsersTotal(0);
+      setDeviceUsersPage(1);
+      return;
+    }
+
     const pageNo = opts.page ?? deviceUsersPage;
     setDeviceUsersLoading(true);
 
@@ -98,14 +186,16 @@ const DevicesPage = () => {
       );
       setDeviceUsersPage(pagination.page || 1);
       setDeviceUsersTotal(pagination.total || users.length);
-      if (opts.complex_id) setSelectedComplexId(opts.complex_id);
+      if (opts.complex_id) {
+        applyComplexSelection(opts.complex_id, { closeModal: false });
+      }
     } catch (error) {
       console.error("Failed to load Basip users", error);
       setDeviceUsers([]);
     } finally {
       setDeviceUsersLoading(false);
     }
-  }, [selectedComplexId, deviceUsersPage]);
+  }, [applyComplexSelection, selectedComplexId, deviceUsersPage]);
 
   const handleNameSearch = (value) => {
     applySearch({ name: value, building: filterBuilding, status: statusFilter });
@@ -144,10 +234,98 @@ const DevicesPage = () => {
   }, [dispatch, complexes.length]);
 
   useEffect(() => {
-    if (deviceUsersOpen) {
+    let mounted = true;
+
+    const resolveEligibleComplexes = async () => {
+      if (!complexes?.length) {
+        if (mounted) {
+          setEligibleComplexes([]);
+          setEligibleComplexesError("");
+        }
+        return;
+      }
+
+      setEligibleComplexesLoading(true);
+      setEligibleComplexesError("");
+
+      try {
+        const responses = await Promise.all(
+          complexes.map(async (complex) => {
+            try {
+              const response = await complexesAPI.getById(complex.id);
+              return {
+                complex,
+                details: response?.data?.data || null,
+              };
+            } catch (error) {
+              return {
+                complex,
+                details: null,
+              };
+            }
+          })
+        );
+
+        const filtered = responses
+          .filter((item) => canLoadBasipProjectForComplex(item.details))
+          .map((item) => item.complex);
+
+        if (mounted) {
+          setEligibleComplexes(filtered);
+        }
+      } catch (error) {
+        if (mounted) {
+          setEligibleComplexes([]);
+          setEligibleComplexesError(
+            t("devices.complexSelection.loadError") || "Kompleks konfiqurasiyasi yuklenmedi"
+          );
+        }
+      } finally {
+        if (mounted) {
+          setEligibleComplexesLoading(false);
+        }
+      }
+    };
+
+    resolveEligibleComplexes();
+
+    return () => {
+      mounted = false;
+    };
+  }, [complexes, t]);
+
+  useEffect(() => {
+    if (eligibleComplexesLoading) return;
+
+    if (!eligibleComplexes.length) {
+      setSelectedComplexId(null);
+      setComplexSelectionOpen(false);
+      setComplexSelectionRequired(false);
+      return;
+    }
+
+    if (eligibleComplexes.length === 1) {
+      applyComplexSelection(eligibleComplexes[0].id, { closeModal: false });
+      setComplexSelectionOpen(false);
+      setComplexSelectionRequired(false);
+      return;
+    }
+
+    const hasValidSelection = eligibleComplexes.some((complex) => complex.id === Number(selectedComplexId));
+    if (hasValidSelection) {
+      setComplexSelectionRequired(false);
+      return;
+    }
+
+    setComplexSelectionRequired(true);
+    setComplexSelectionOpen(true);
+  }, [applyComplexSelection, eligibleComplexes, eligibleComplexesLoading, selectedComplexId]);
+
+  useEffect(() => {
+    if (deviceUsersOpen && selectedComplexId) {
       loadDeviceUsers({ page: 1 });
     }
-  }, [deviceUsersOpen, loadDeviceUsers]);
+  }, [deviceUsersOpen, loadDeviceUsers, selectedComplexId]);
 
   const handleOpenDeviceUsers = () => {
     setDeviceUsersOpen(true);
@@ -157,12 +335,152 @@ const DevicesPage = () => {
     setDeviceUsersOpen(false);
   };
 
+  const handleOpenDeviceIdentifiers = () => {
+    setDeviceIdentifiersOpen(true);
+  };
+
+  const handleCloseDeviceIdentifiers = () => {
+    setDeviceIdentifiersOpen(false);
+  };
+
+  const handleDeviceUsersPageChange = (nextPage) => {
+    const safePage = Math.max(1, Number(nextPage) || 1);
+    setDeviceUsersPage(safePage);
+    loadDeviceUsers({ page: safePage });
+  };
+
+  const loadDeviceIdentifiers = useCallback(async (opts = {}) => {
+    const complex_id = Number(opts.complex_id ?? selectedComplexId);
+    if (!complex_id) {
+      setDeviceIdentifiers([]);
+      setDeviceIdentifiersTotal(0);
+      setDeviceIdentifiersPage(1);
+      return;
+    }
+
+    const pageNo = opts.page ?? deviceIdentifiersPage;
+    setDeviceIdentifiersLoading(true);
+
+    try {
+      const response = await devicesAPI.getBasipIdentifiers({
+        complex_id,
+        page: pageNo,
+        size: 20,
+      });
+      const identifiers = response?.data?.body?.data ?? [];
+      const pagination = response?.data?.body?.pagination ?? {};
+
+      setDeviceIdentifiers(identifiers);
+      setDeviceIdentifiersPage(pagination.page || 1);
+      setDeviceIdentifiersTotal(pagination.total || identifiers.length);
+
+      if (opts.complex_id) {
+        applyComplexSelection(opts.complex_id, { closeModal: false });
+      }
+    } catch (error) {
+      console.error("Failed to load Basip identifiers", error);
+      setDeviceIdentifiers([]);
+    } finally {
+      setDeviceIdentifiersLoading(false);
+    }
+  }, [applyComplexSelection, deviceIdentifiersPage, selectedComplexId]);
+
+  const handleDeviceIdentifiersPageChange = (nextPage) => {
+    const safePage = Math.max(1, Number(nextPage) || 1);
+    setDeviceIdentifiersPage(safePage);
+    loadDeviceIdentifiers({ page: safePage });
+  };
+
+  useEffect(() => {
+    if (deviceIdentifiersOpen && selectedComplexId) {
+      loadDeviceIdentifiers({ page: 1 });
+    }
+  }, [deviceIdentifiersOpen, loadDeviceIdentifiers, selectedComplexId]);
+
+  const renderDeviceExtraControls = (isMobile = false) => {
+    const wrapperClass = isMobile ? "flex flex-wrap gap-2" : "flex flex-wrap gap-2 md:gap-2";
+    const actionButtonClass = "flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all px-4";
+    const actionButtonStyle = { background: getActiveGradient(0.9, 0.7) };
+
+    return (
+      <div className={wrapperClass}>
+        {eligibleComplexes.length > 1 ? (
+          <div className={isMobile ? "w-full" : "min-w-[220px]"}>
+            <AppSelect
+              items={eligibleComplexes}
+              value={selectedComplexId}
+              onChange={(value) => handleComplexChange(value)}
+              allowAll={false}
+              placeholder={t("devices.complexSelection.changeButton") || "Kompleks sec"}
+              getValue={(item) => item.id}
+              getLabel={(item) => item.name || `Complex ${item.id}`}
+              buttonProps={{
+                size: isMobile ? "sm" : "md",
+                className: "w-full justify-between flex items-center gap-2 text-white shadow-md hover:shadow-lg transition-all px-4 border-0",
+                style: actionButtonStyle,
+              }}
+              menuProps={{
+                className: "dark:bg-gray-800 dark:border-gray-700 max-h-[320px] overflow-y-auto scrollbar-thin z-[9999]",
+              }}
+            />
+          </div>
+        ) : null}
+
+        <Button
+          type="button"
+          size={isMobile ? "sm" : "md"}
+          onClick={handleOpenDeviceUsers}
+          className={actionButtonClass}
+          style={actionButtonStyle}
+        >
+          {t("devices.actions.deviceUsers") || "Istifadeciler"}
+        </Button>
+
+        <Button
+          type="button"
+          size={isMobile ? "sm" : "md"}
+          onClick={() => setAccessRulesOpen(true)}
+          className={actionButtonClass}
+          style={actionButtonStyle}
+        >
+          {t("devices.actions.accessRules") || "Icaze qaydalari"}
+        </Button>
+
+        <Button
+          type="button"
+          size={isMobile ? "sm" : "md"}
+          onClick={handleOpenDeviceIdentifiers}
+          className={actionButtonClass}
+          style={actionButtonStyle}
+        >
+          {t("devices.actions.deviceIdentifiers") || "Identifikatorlar"}
+        </Button>
+
+        <Button
+          type="button"
+          size={isMobile ? "sm" : "md"}
+          onClick={() => setDeviceLogsOpen(true)}
+          className={actionButtonClass}
+          style={actionButtonStyle}
+        >
+          {t("devices.actions.deviceLogs") || "Loglar"}
+        </Button>
+      </div>
+    );
+  };
+
   const handleComplexChange = (newComplexId) => {
-    setSelectedComplexId(Number(newComplexId));
+    applyComplexSelection(Number(newComplexId), { closeModal: false });
     loadDeviceUsers({ complex_id: Number(newComplexId), page: 1 });
+    loadDeviceIdentifiers({ complex_id: Number(newComplexId), page: 1 });
   };
 
   const handleOpenUserForm = () => {
+    if (!selectedComplexId) {
+      setUserFormErrors({ form: t("devices.deviceUsers.selectComplex") || "Kompleks secin" });
+      return;
+    }
+
     setUserFormData({
       complex_id: selectedComplexId,
       name: "",
@@ -185,10 +503,12 @@ const DevicesPage = () => {
 
   const handleCreateUser = async () => {
     const errors = {};
+    const effectiveComplexId = Number(userFormData.complex_id || selectedComplexId);
+
     if (!userFormData.name?.trim()) errors.name = "Ad tələb olunur";
     if (!userFormData.email?.trim()) errors.email = "E-poçt tələb olunur";
     if (!userFormData.domain_id) errors.domain_id = "Domain ID tələb olunur";
-    if (!userFormData.complex_id) errors.complex_id = "Complex ID tələb olunur";
+    if (!effectiveComplexId) errors.form = t("devices.deviceUsers.selectComplex") || "Kompleks secin";
     if (Object.keys(errors).length > 0) {
       setUserFormErrors(errors);
       return;
@@ -197,7 +517,7 @@ const DevicesPage = () => {
     setUserFormSaving(true);
     try {
       await devicesAPI.addBasipUser({
-        complex_id: Number(userFormData.complex_id),
+        complex_id: effectiveComplexId,
         name: userFormData.name,
         role_id: Number(userFormData.role_id),
         email: userFormData.email,
@@ -211,7 +531,7 @@ const DevicesPage = () => {
         elevator_access_disabled: userFormData.elevator_access_disabled,
       });
       setUserFormOpen(false);
-      loadDeviceUsers({ complex_id: Number(userFormData.complex_id), page: 1 });
+      loadDeviceUsers({ complex_id: effectiveComplexId, page: 1 });
     } catch (error) {
       console.error("Failed to add Basip user", error);
       setUserFormErrors({ form: error?.message || "Xəta baş verdi" });
@@ -233,42 +553,99 @@ const DevicesPage = () => {
     }
   };
 
+  const handleCreateIdentifier = async (payload) => {
+    const effectiveComplexId = Number(selectedComplexId);
+    if (!effectiveComplexId) {
+      throw new Error(t("devices.deviceUsers.selectComplex") || "Kompleks secin");
+    }
+
+    await devicesAPI.addBasipIdentifier({
+      complex_id: effectiveComplexId,
+      ...payload,
+    });
+
+    await loadDeviceIdentifiers({ complex_id: effectiveComplexId, page: deviceIdentifiersPage || 1 });
+  };
+
+  const handleUpdateIdentifier = async ({ id, ...payload }) => {
+    const effectiveComplexId = Number(selectedComplexId);
+    if (!effectiveComplexId) {
+      throw new Error(t("devices.deviceUsers.selectComplex") || "Kompleks secin");
+    }
+
+    await devicesAPI.updateBasipIdentifier({
+      id,
+      complex_id: effectiveComplexId,
+      ...payload,
+    });
+
+    await loadDeviceIdentifiers({ complex_id: effectiveComplexId, page: deviceIdentifiersPage || 1 });
+  };
+
+  const handleDeleteIdentifier = async (identifierId) => {
+    const effectiveComplexId = Number(selectedComplexId);
+    if (!effectiveComplexId) return;
+
+    setDeviceIdentifiersLoading(true);
+    try {
+      await devicesAPI.deleteBasipIdentifier({ id: identifierId, complex_id: effectiveComplexId });
+      await loadDeviceIdentifiers({ complex_id: effectiveComplexId, page: deviceIdentifiersPage || 1 });
+    } catch (error) {
+      console.error("Failed to delete Basip identifier", error);
+    } finally {
+      setDeviceIdentifiersLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-4 px-1">
       <DeviceHeader
-        onOpenAccessRules={() => setAccessRulesOpen(true)}
-        onOpenDeviceUsers={handleOpenDeviceUsers}
-        onOpenDeviceIdentifiers={() => setDeviceIdentifiersOpen(true)}
-        onOpenDeviceLogs={() => setDeviceLogsOpen(true)}
+        selectedComplexName={selectedComplexName}
       />
 
-      <DeviceActions
-        filterName={filterName}
-        filterStatus={statusFilter}
-        onNameSearch={handleNameSearch}
-        onStatusChange={handleStatusChange}
-        onCreateClick={handleOpenCreate}
-        total={total}
-      />
+      {!selectedComplexId ? (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+          <p className="text-sm text-gray-700 dark:text-gray-200">
+            {eligibleComplexesLoading
+              ? t("common.loading") || "Yuklenir..."
+              : eligibleComplexesError ||
+                t("devices.complexSelection.requiredDescription") ||
+                "Cihazlar sehifesi ucun kompleks secimi teleb olunur."}
+          </p>
+        </div>
+      ) : (
+        <>
+          <ManagementActions
+            entityLevel="device"
+            search={{ name: filterName, status: statusFilter }}
+            onCreateClick={handleOpenCreate}
+            onApplyNameSearch={handleNameSearch}
+            onStatusChange={handleStatusChange}
+            totalItems={total}
+            showStatus={false}
+            renderExtraControls={renderDeviceExtraControls}
+          />
 
-      <DeviceTable
-        items={items}
-        loading={loading}
-        page={page}
-        lastPage={lastPage}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onPageChange={goToPage}
-      />
+          <DeviceTable
+            items={items}
+            loading={loading}
+            page={page}
+            lastPage={lastPage}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onPageChange={goToPage}
+          />
 
-      <SmartPagination
-        page={page}
-        totalPages={lastPage}
-        onPageChange={goToPage}
-        prevLabel={t("devices.pagination.prev") || "Əvvəlki"}
-        nextLabel={t("devices.pagination.next") || "Növbəti"}
-        summary={<>Cəm: <b>{total}</b> nəticə</>}
-      />
+          <SmartPagination
+            page={page}
+            totalPages={lastPage}
+            onPageChange={goToPage}
+            prevLabel={t("devices.pagination.prev") || "Əvvəlki"}
+            nextLabel={t("devices.pagination.next") || "Növbəti"}
+            summary={<>Cəm: <b>{total}</b> nəticə</>}
+          />
+        </>
+      )}
 
       <DeviceFormModal
         open={formOpen}
@@ -291,15 +668,15 @@ const DevicesPage = () => {
         onClose={handleCloseDeviceUsers}
         items={deviceUsers}
         loading={deviceUsersLoading}
-        complexes={complexes}
-        selectedComplexId={selectedComplexId}
+        complexId={selectedComplexId}
         complexName={selectedComplexName}
         page={deviceUsersPage}
         total={deviceUsersTotal}
+        onPageChange={handleDeviceUsersPageChange}
+        itemsPerPage={20}
         onRefresh={() => loadDeviceUsers({ page: deviceUsersPage })}
         onOpenAddUser={handleOpenUserForm}
         onDeleteUser={handleDeleteUser}
-        onComplexChange={handleComplexChange}
       />
 
       <DeviceUserFormModal
@@ -310,19 +687,51 @@ const DevicesPage = () => {
         onChange={handleUserFormChange}
         onSave={handleCreateUser}
         saving={userFormSaving}
-        complexes={complexes}
+        complexName={selectedComplexName}
       />
 
       <DeviceIdentifiersModal
         open={deviceIdentifiersOpen}
-        onClose={() => setDeviceIdentifiersOpen(false)}
-        items={identifiersData}
+        onClose={handleCloseDeviceIdentifiers}
+        items={deviceIdentifiers}
+        loading={deviceIdentifiersLoading}
+        complexId={selectedComplexId}
+        complexName={selectedComplexName}
+        page={deviceIdentifiersPage}
+        total={deviceIdentifiersTotal}
+        onPageChange={handleDeviceIdentifiersPageChange}
+        itemsPerPage={20}
+        onRefresh={() => loadDeviceIdentifiers({ page: deviceIdentifiersPage })}
+        onCreate={handleCreateIdentifier}
+        onUpdate={handleUpdateIdentifier}
+        onDelete={handleDeleteIdentifier}
       />
 
       <DeviceLogsModal
         open={deviceLogsOpen}
         onClose={() => setDeviceLogsOpen(false)}
         items={logsData}
+      />
+
+      <DeviceComplexSelectModal
+        open={complexSelectionOpen}
+        onClose={() => {
+          if (complexSelectionRequired) return;
+          setComplexSelectionOpen(false);
+        }}
+        complexes={eligibleComplexes}
+        selectedComplexId={selectedComplexId}
+        loading={eligibleComplexesLoading}
+        required={complexSelectionRequired}
+        onConfirm={(complexId) => {
+          applyComplexSelection(complexId);
+          if (deviceUsersOpen) {
+            loadDeviceUsers({ complex_id: complexId, page: 1 });
+          }
+          if (deviceIdentifiersOpen) {
+            loadDeviceIdentifiers({ complex_id: complexId, page: 1 });
+          }
+        }}
       />
     </div>
   );

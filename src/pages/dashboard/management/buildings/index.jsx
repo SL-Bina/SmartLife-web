@@ -202,7 +202,6 @@ export default function BuildingsPage() {
         entityLevel={ENTITY_LEVELS.BUILDING}
         search={search}
         onCreateClick={handleCreate}
-        onSearchClick={() => setSearchModalOpen(true)}
         onApplyNameSearch={handleApplyNameSearch}
         onStatusChange={handleStatusChange}
         onRemoveFilter={handleRemoveFilter}

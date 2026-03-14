@@ -1,20 +1,22 @@
 import React from "react";
-import { Typography, Button } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import { CpuChipIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
+import { useMtkColor } from "@/store/hooks/useMtkColor";
 
 export function DeviceHeader({
-  onOpenAccessRules,
-  onOpenDeviceUsers,
-  onOpenDeviceIdentifiers,
-  onOpenDeviceLogs,
+  selectedComplexName = "",
 }) {
   const { t } = useTranslation();
+  const { getRgba: getMtkRgba, getActiveGradient } = useMtkColor();
+
+  const gradientStyle = { background: getActiveGradient(0.9, 0.7) };
+  const borderColor = getMtkRgba(0.3);
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 bg-gradient-to-r from-blue-600 to-blue-800 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 mt-2 sm:mt-3 md:mt-4"
-      style={{ position: "relative", zIndex: 0 }}
+      className="relative w-full overflow-hidden rounded-xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 mt-2 sm:mt-3 md:mt-4"
+      style={{ ...gradientStyle, border: `1px solid ${borderColor}`, position: "relative", zIndex: 0 }}
     >
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
@@ -26,65 +28,33 @@ export function DeviceHeader({
         />
       </div>
 
-      <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+      <div className="relative flex items-center gap-3 sm:gap-4">
         {/* Icon */}
         <div className="flex-shrink-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30 dark:border-gray-600/30 bg-white/20">
+          <div
+            className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30 dark:border-gray-600/30"
+            style={{ backgroundColor: getMtkRgba(0.2) }}
+          >
             <CpuChipIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-white" />
           </div>
         </div>
 
         {/* Title + subtitle */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-            <div className="min-w-0">
-              <Typography
-                variant="h4"
-                className="text-white font-bold mb-1 text-lg sm:text-xl md:text-2xl"
-              >
-                {t("devices.pageTitle") || "Cihazlar"}
-              </Typography>
-              <Typography className="text-white/90 dark:text-gray-300 text-xs sm:text-sm font-medium">
-                {t("devices.pageSubtitle") || "Cihaz siyahısı, icazə qaydaları, istifadəçilər, loglar"}
-              </Typography>
-            </div>
-
-            {/* Quick-action buttons */}
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="outlined"
-                onClick={onOpenAccessRules}
-                className="border-white/40 text-white hover:bg-white/20 text-xs px-3 py-1.5 whitespace-nowrap"
-              >
-                {t("devices.actions.accessRules") || "İcazə qaydaları"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outlined"
-                onClick={onOpenDeviceUsers}
-                className="border-white/40 text-white hover:bg-white/20 text-xs px-3 py-1.5 whitespace-nowrap"
-              >
-                {t("devices.actions.deviceUsers") || "İstifadəçilər"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outlined"
-                onClick={onOpenDeviceIdentifiers}
-                className="border-white/40 text-white hover:bg-white/20 text-xs px-3 py-1.5 whitespace-nowrap"
-              >
-                {t("devices.actions.deviceIdentifiers") || "İdentifikatorlar"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outlined"
-                onClick={onOpenDeviceLogs}
-                className="border-white/40 text-white hover:bg-white/20 text-xs px-3 py-1.5 whitespace-nowrap"
-              >
-                {t("devices.actions.deviceLogs") || "Loglar"}
-              </Button>
-            </div>
-          </div>
+          <Typography
+            variant="h4"
+            className="text-white font-bold mb-1 text-lg sm:text-xl md:text-2xl"
+          >
+            {t("devices.pageTitle") || "Cihazlar"}
+          </Typography>
+          <Typography className="text-white/90 dark:text-gray-300 text-xs sm:text-sm font-medium">
+            {t("devices.pageSubtitle") || "Cihaz siyahisi, icaze qaydalari, istifadeciler, loglar"}
+          </Typography>
+          {selectedComplexName ? (
+            <Typography className="text-white/90 dark:text-gray-300 text-xs mt-1">
+              {t("devices.complexSelection.activeComplex") || "Aktiv kompleks"}: <b>{selectedComplexName}</b>
+            </Typography>
+          ) : null}
         </div>
       </div>
 

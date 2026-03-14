@@ -17,12 +17,14 @@ import { motion } from "framer-motion";
 import residentInvoicesAPI from "./api";
 import { InvoiceDetailModal } from "./components";
 import { useComplexColor } from "@/hooks/useComplexColor";
+import { isResidentOnlinePaymentEnabled, RESIDENT_OFFICE_PAYMENT_MESSAGE } from "./utils/paymentAvailability";
 
 
 
 const ResidentMyInvaoicesPage = () => {
   const { t } = useTranslation();
   const selectedPropertyId = useSelector((state) => state.property.selectedPropertyId);
+  const selectedProperty = useSelector((state) => state.property.selectedProperty);
   const { color, getRgba, headerStyle } = useComplexColor();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +70,7 @@ const ResidentMyInvaoicesPage = () => {
   const unpaidCount = invoices.filter((i) => isUnpaid(i.status)).length;
   const totalDebt   = invoices.filter((i) => isUnpaid(i.status)).reduce((s, i) => s + Number(i.amount || 0) - Number(i.amount_paid || 0), 0);
   const paidCount   = invoices.filter((i) => i.status === "paid").length;
+  const isOnlinePaymentEnabled = isResidentOnlinePaymentEnabled(selectedProperty);
 
   if (loading) {
     return (
@@ -137,6 +140,20 @@ const ResidentMyInvaoicesPage = () => {
           </div>
         ))}
       </div>
+
+      {!isOnlinePaymentEnabled && unpaidCount > 0 && (
+        <div
+          className="rounded-xl border px-4 py-3 flex items-start gap-3 bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-200 dark:border-amber-800"
+        >
+          <ExclamationCircleIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <div>
+            <Typography className="font-semibold text-sm">Onlayn ödəniş deaktivdir</Typography>
+            <Typography variant="small" className="text-amber-700 dark:text-amber-300">
+              {RESIDENT_OFFICE_PAYMENT_MESSAGE}
+            </Typography>
+          </div>
+        </div>
+      )}
 
       {invoices.length === 0 ? (
         <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
@@ -229,7 +246,7 @@ const ResidentMyInvaoicesPage = () => {
                           >
                             <EyeIcon className="h-3.5 w-3.5" /> Bax
                           </button>
-                          {unpaid && remaining > 0 && (
+                          {unpaid && remaining > 0 && isOnlinePaymentEnabled && (
                             <button
                               onClick={() => openDetail(invoice)}
                               className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-opacity"
@@ -294,7 +311,7 @@ const ResidentMyInvaoicesPage = () => {
                               <button onClick={() => openDetail(invoice)} title="Bax" className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-gray-500 dark:text-gray-400">
                                 <EyeIcon className="h-4 w-4" />
                               </button>
-                              {unpaid && remaining > 0 && (
+                              {unpaid && remaining > 0 && isOnlinePaymentEnabled && (
                                 <button onClick={() => openDetail(invoice)} title="Ödə" className="p-1.5 rounded-lg text-white hover:opacity-80 transition-opacity" style={{ background: color }}>
                                   <CreditCardIcon className="h-4 w-4" />
                                 </button>
@@ -317,6 +334,7 @@ const ResidentMyInvaoicesPage = () => {
         open={detailModalOpen}
         onClose={() => { setDetailModalOpen(false); setSelectedInvoice(null); }}
         invoiceId={selectedInvoice?.id}
+        paymentEnabled={isOnlinePaymentEnabled}
       />
     </div>
   );

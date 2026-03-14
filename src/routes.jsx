@@ -204,7 +204,7 @@ export const routes = [
         name: "sidebar.devices",
         path: "/devices",
         element: <DevicesPage />,
-        // moduleName: "device",
+        moduleName: "device",
         // moduleId: 0,
       },
       {
@@ -212,7 +212,7 @@ export const routes = [
         path: "/parking",
         element: <ParkingPage />,
         icon: <BuildingOfficeIcon {...icon} />,
-        // moduleName: "parking",
+        moduleName: "parking",
         // moduleId: 0,
       },
       {
@@ -220,7 +220,7 @@ export const routes = [
         name: "sidebar.notifications",
         path: "/notifications",
         element: <Notifications />,
-        moduleName: "notification",
+        moduleName: "notifcation",
         // moduleId: 0,
       },
       {

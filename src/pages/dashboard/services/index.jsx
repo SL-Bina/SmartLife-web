@@ -6,7 +6,7 @@ import { useServicesData } from "./hooks/useServicesData";
 import { useServicesFilters } from "./hooks/useServicesFilters";
 import { useServicesForm } from "./hooks/useServicesForm";
 import { ServicesHeader } from "./components/ServicesHeader";
-import { ServicesActions } from "./components/ServicesActions";
+import { ManagementActions, ENTITY_LEVELS } from "@/components/management/ManagementActions";
 import { ServicesTable } from "./components/ServicesTable";
 import { ServicesCardList } from "./components/ServicesCardList";
 import { ServicesPagination } from "./components/ServicesPagination";
@@ -51,6 +51,11 @@ const ServicesPage = () => {
   const handleFilterApply = () => {
     setPage(1);
     applyFilters();
+  };
+
+  const handleApplyNameSearch = (value) => {
+    setPage(1);
+    applyFilters({ name: value && value.trim() ? value.trim() : "" });
   };
 
   const handleFilterClear = () => {
@@ -183,10 +188,14 @@ const ServicesPage = () => {
         onClose={() => setToast((p) => ({ ...p, open: false }))}
       />
 
-      <ServicesActions
-        onFilterClick={() => setFilterOpen(true)}
+      <ManagementActions
+        entityLevel={ENTITY_LEVELS.SERVICE}
+        search={filters}
         onCreateClick={openCreateModal}
-        total={pagination?.total}
+        // onSearchClick={() => setFilterOpen(true)}
+        onApplyNameSearch={handleApplyNameSearch}
+        showStatus={false}
+        totalItems={pagination?.total || 0}
       />
 
       {/* Table / cards card */}

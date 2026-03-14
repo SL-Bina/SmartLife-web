@@ -21,8 +21,10 @@ export function useServicesFilters() {
     setAppliedFilters(initialFilters);
   };
 
-  const applyFilters = () => {
-    setAppliedFilters({ ...filters });
+  const applyFilters = (overrides = {}) => {
+    const nextFilters = { ...filters, ...overrides };
+    setFilters(nextFilters);
+    setAppliedFilters(nextFilters);
     setFilterOpen(false);
   };
 
